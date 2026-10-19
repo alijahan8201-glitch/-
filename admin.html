@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیریت</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 16px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            color: #cbd5e1;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: 0.3s;
+            font-size: 1rem;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            color: white;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .participant-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            color: white;
+        }
+
+        .participant-table th,
+        .participant-table td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            text-align: center;
+        }
+
+        .participant-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+            font-weight: normal;
+        }
+
+        .draw-box {
+            text-align: center;
+            padding: 50px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            border: 2px dashed rgba(139, 92, 246, 0.5);
+            margin-top: 20px;
+        }
+
+        #winner-display {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #a78bfa, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+            margin: 30px 0;
+            min-height: 60px;
+        }
+
+        #winner-phone {
+            color: #94a3b8;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            direction: ltr;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <h1>🔧 پنل مدیریت</h1>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('tab-add')">افزودن پروژه</button>
+            <button class="tab-btn" onclick="openTab('tab-participants')">شرکت‌کننده‌ها</button>
+            <button class="tab-btn" onclick="openTab('tab-draw')">🎁 قرعه‌کشی</button>
+        </div>
+
+        <div id="tab-add" class="tab-content active">
+            <form id="add-form">
+                <div class="form-group">
+                    <label>رمز عبور ادمین</label>
+                    <input type="password" id="password" class="form-input" required placeholder="رمز ادمین">
+                </div>
+                <div class="form-group">
+                    <label>عنوان پروژه</label>
+                    <input type="text" id="title" class="form-input" required placeholder="مثلاً: ربات مسیریاب">
+                </div>
+                <div class="form-group">
+                    <label>نام تیم / سازنده</label>
+                    <input type="text" id="team" class="form-input" placeholder="مثلاً: تیم آتش">
+                </div>
+                <div class="form-group">
+                    <label>توضیحات کامل</label>
+                    <textarea id="description" class="form-input" required placeholder="توضیح کامل..."
+                        style="height: 100px; resize: none;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>انتخاب عکس (از کامپیوتر)</label>
+                    <input type="file" id="image" accept="image/*" class="form-input" style="padding: 10px;">
+                </div>
+                <div class="form-group">
+                    <label>انتخاب ویدیو (از کامپیوتر)</label>
+                    <input type="file" id="video" accept="video/*" class="form-input" style="padding: 10px;">
+                </div>
+                <button type="submit" class="btn-primary" id="submit-btn">➕ افزودن پروژه</button>
+            </form>
+
+            <div class="admin-projects" style="margin-top: 30px;">
+                <h3 style="margin-bottom: 15px; color: #fff;">پروژه‌های موجود</h3>
+                <div id="admin-list" style="color: #cbd5e1;">در حال بارگذاری...</div>
+            </div>
+        </div>
+
+        <div id="tab-participants" class="tab-content">
+            <h3 style="margin-bottom: 15px; color: #fff;">لیست شرکت‌کننده‌ها</h3>
+            <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 16px;">
+                <table class="participant-table" id="participants-table">
+                    <thead>
+                        <tr>
+                            <th>نام</th>
+                            <th>نام خانوادگی</th>
+                            <th>شماره تماس</th>
+                            <th>امتیاز</th>
+                            <th>پروژه</th>
+                        </tr>
+                    </thead>
+                    <tbody id="participants-body">
+                        <tr>
+                            <td colspan="5">در حال بارگذاری...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-draw" class="tab-content">
+            <div class="draw-box">
+                <h3 style="color: #fff; font-size: 1.5rem;">قرعه‌کشی ویژه نمایشگاه</h3>
+                <p style="color: #94a3b8; margin-top: 10px;">دکمه زیر را بزنید تا یک برنده به صورت شانسی انتخاب شود.</p>
+                <div id="winner-display">-</div>
+                <div id="winner-phone"></div>
+                <button class="btn-primary" onclick="startDraw()" id="draw-btn"
+                    style="max-width: 300px; margin: 0 auto;">🎲 شروع قرعه‌کشی</button>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top:30px;">
+            <a href="index.html" style="color: #8b5cf6; text-decoration: none; font-weight: bold;">← بازگشت به سایت</a>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <script src="admin.js"></script>
+</body>
+
+</html>
