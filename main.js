@@ -1,5 +1,6 @@
 const API_URL = '/api';
 
+// ==================== توابع کمکی و اعتبارسنجی ====================
 function getVoterId() {
   let voterId = localStorage.getItem('voter_id');
   if (!voterId) {
@@ -9,6 +10,7 @@ function getVoterId() {
   return voterId;
 }
 const VOTER_ID = getVoterId();
+
 let userInfo = JSON.parse(localStorage.getItem('user_info') || 'null');
 
 function showToast(message, type = 'info') {
@@ -18,36 +20,16 @@ function showToast(message, type = 'info') {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-document.getElementById('to-info-btn').addEventListener('click', () => {
-  document.getElementById('welcome-screen').style.display = 'none';
-  document.getElementById('info-screen').style.display = 'block';
-});
-
-document.getElementById('start-btn').addEventListener('click', () => {
-  const fname = document.getElementById('reg-firstname').value.trim();
-  const lname = document.getElementById('reg-lastname').value.trim();
-  const phone = document.getElementById('reg-phone').value.trim();
-
-  if (!fname || !lname || !phone) {
-    showToast('لطفاً همه فیلدها را پر کنید', 'error');
-    return;
-  }
-
-  userInfo = { first_name: fname, last_name: lname, phone_number: phone };
-  localStorage.setItem('user_info', JSON.stringify(userInfo));
-
-  document.getElementById('info-screen').style.display = 'none';
-  document.getElementById('main-screen').style.display = 'block';
-  loadProjects();
-});
-
-if (userInfo) {
-  document.getElementById('welcome-screen').style.display = 'none';
-  document.getElementById('main-screen').style.display = 'block';
-  loadProjects();
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
 }
 
-function getVotedProjects() { return JSON.parse(localStorage.getItem('voted_projects') || '[]'); }
+function getVotedProjects() { 
+  return JSON.parse(localStorage.getItem('voted_projects') || '[]'); 
+}
+
 function markAsVoted(projectId) {
   const voted = getVotedProjects();
   if (!voted.includes(projectId)) {
@@ -56,10 +38,11 @@ function markAsVoted(projectId) {
   }
 }
 
+// تبدیل لینک ویدیوهای یوتیوب و آپارات
 function getVideoHtml(url) {
   if (!url) return '';
   if (url.includes('uploads/') || url.endsWith('.mp4')) {
-    return `<video src="${url}" controls></video>`;
+    return `<video src="${url}" controls style="width:100%; height:100%;"></video>`;
   }
   let embedUrl = url;
   if (url.includes('youtube.com/watch?v=')) embedUrl = url.replace('watch?v=', 'embed/');
@@ -71,6 +54,47 @@ function getVideoHtml(url) {
   return `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
 }
 
+// ==================== مدیریت صفحات (خوش‌آمد و ثبت‌نام) ====================
+document.getElementById('to-info-btn').addEventListener('click', () => {
+  document.getElementById('welcome-screen').style.display = 'none';
+  document.getElementById('info-screen').style.display = 'block';
+});
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  const fname = document.getElementById('reg-firstname').value.trim();
+  const lname = document.getElementById('reg-lastname').value.trim();
+  const phone = document.getElementById('reg-phone').value.trim();
+
+  // ۱. چک کردن خالی نبودن فیلدها
+  if (!fname || !lname || !phone) {
+    showToast('لطفاً همه فیلدها را پر کنید', 'error');
+    return;
+  }
+
+  // ۲. چک کردن فرمت شماره موبایل (شروع با 09 و دقیقا ۱۱ رقم)
+  const phoneRegex = /^09\d{9}$/;
+  if (!phoneRegex.test(phone)) {
+    showToast('شماره موبایل نامعتبر است! باید ۱۱ رقم و با ۰۹ شروع شود.', 'error');
+    return; // جلوگیری از ادامه کار در صورت اشتباه بودن شماره
+  }
+
+  // ۳. ذخیره اطلاعات و رفتن به مرحله بعد
+  userInfo = { first_name: fname, last_name: lname, phone_number: phone };
+  localStorage.setItem('user_info', JSON.stringify(userInfo));
+
+  document.getElementById('info-screen').style.display = 'none';
+  document.getElementById('main-screen').style.display = 'block';
+  loadProjects();
+});
+
+// اگر کاربر قبلا ثبت نام کرده بود، مستقیم بره به صفحه پروژه‌ها
+if (userInfo) {
+  document.getElementById('welcome-screen').style.display = 'none';
+  document.getElementById('main-screen').style.display = 'block';
+  loadProjects();
+}
+
+// ==================== مدیریت پروژه‌ها و مودال ====================
 let allProjects = [];
 let currentSelectedScore = 0;
 let currentProjectId = null;
@@ -122,6 +146,8 @@ function openModal(projectId) {
   } else {
     document.getElementById('rating-section').style.display = 'block';
     document.getElementById('already-rated-msg').style.display = 'none';
+    
+    // ریست کردن فرم امتیازدهی
     currentSelectedScore = 0;
     document.getElementById('submit-rating-btn').disabled = true;
     document.querySelectorAll('.rate-btn').forEach(btn => btn.classList.remove('selected'));
@@ -146,6 +172,7 @@ function selectScore(score) {
   document.getElementById('submit-rating-btn').disabled = false;
 }
 
+// ==================== ثبت امتیاز و پاپ‌آپ تشکر ====================
 async function submitRating() {
   const btn = document.getElementById('submit-rating-btn');
   btn.disabled = true;
@@ -175,8 +202,10 @@ async function submitRating() {
       loadProjects();
 
       if (isFirstVote) {
+        // نمایش پاپ‌آپ ویژه برای اولین رأی
         document.getElementById('thank-you-modal').style.display = 'flex';
       } else {
+        // نمایش پیام ساده برای رأی‌های بعدی
         showToast('امتیاز شما با موفقیت ثبت شد! ✅', 'success');
       }
     } else {
@@ -191,22 +220,19 @@ async function submitRating() {
   }
 }
 
+// بستن پاپ‌آپ تشکر
 function closeThankYouModal() {
   document.getElementById('thank-you-modal').style.display = 'none';
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str || '';
-  return div.innerHTML;
-}
-
+// ==================== بارگذاری اولیه و بررسی QR Code ====================
 async function loadProjects() {
   try {
     const response = await fetch(`${API_URL}/projects`);
     const data = await response.json();
     renderProjects(data);
 
+    // بررسی اینکه آیا کاربر از طریق QR Code وارد شده است یا نه
     const urlParams = new URLSearchParams(window.location.search);
     const projectIdFromUrl = urlParams.get('p');
 
@@ -218,7 +244,7 @@ async function loadProjects() {
       } else {
         setTimeout(() => {
           openModal(parseInt(projectIdFromUrl));
-        }, 500);
+        }, 500); // نیم ثانیه صبر میکنیم تا کارت‌ها رندر شوند
       }
     }
   } catch (e) {
