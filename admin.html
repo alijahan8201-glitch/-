@@ -19,7 +19,6 @@
     #winner-display { font-size: 2.5rem; background: linear-gradient(to right, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; margin: 30px 0; min-height: 60px; }
     #winner-phone { color: #94a3b8; font-size: 1.2rem; margin-bottom: 20px; direction: ltr; }
     
-    /* استایل پنجره QR و ویرایش */
     .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5000; justify-content: center; align-items: center; overflow-y: auto; padding: 20px; }
     .modal-box { background: #1e293b; border: 1px solid rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; width: 100%; max-width: 500px; color: white; position: relative; }
     .modal-box .form-input { margin-bottom: 15px; }
@@ -38,7 +37,6 @@
       <button class="tab-btn" onclick="openTab('tab-draw')">🎁 قرعه‌کشی</button>
     </div>
 
-    <!-- تب 1: افزودن -->
     <div id="tab-add" class="tab-content active">
       <form id="add-form">
         <div class="form-group">
@@ -58,12 +56,12 @@
           <textarea id="description" class="form-input" required placeholder="توضیح کامل..." style="height: 100px; resize: none;"></textarea>
         </div>
         <div class="form-group">
-          <label>انتخاب عکس (از کامپیوتر)</label>
-          <input type="file" id="image" accept="image/*" class="form-input" style="padding: 10px;">
+          <label>آدرس عکس (لینک مستقیم)</label>
+          <input type="url" id="image_url" class="form-input" placeholder="https://uupload.ir/...">
         </div>
         <div class="form-group">
-          <label>انتخاب ویدیو (از کامپیوتر)</label>
-          <input type="file" id="video" accept="video/*" class="form-input" style="padding: 10px;">
+          <label>آدرس ویدیو (لینک یوتیوب یا آپارات)</label>
+          <input type="url" id="video_url" class="form-input" placeholder="https://www.aparat.com/v/...">
         </div>
         <button type="submit" class="btn-primary" id="submit-btn">➕ افزودن پروژه</button>
       </form>
@@ -74,7 +72,6 @@
       </div>
     </div>
 
-    <!-- تب 2: جدول رده‌بندی -->
     <div id="tab-leaderboard" class="tab-content">
       <h3 style="margin-bottom: 15px; color: #fff;">🏆 رتبه‌بندی پروژه‌ها بر اساس امتیاز</h3>
       <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 16px;">
@@ -95,7 +92,6 @@
       </div>
     </div>
 
-    <!-- تب 3: شرکت‌کننده‌ها -->
     <div id="tab-participants" class="tab-content">
       <h3 style="margin-bottom: 15px; color: #fff;">لیست شرکت‌کننده‌ها</h3>
       <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 16px;">
@@ -116,7 +112,6 @@
       </div>
     </div>
 
-    <!-- تب 4: قرعه‌کشی -->
     <div id="tab-draw" class="tab-content">
       <div class="draw-box">
         <h3 style="color: #fff; font-size: 1.5rem;">قرعه‌کشی ویژه نمایشگاه</h3>
@@ -132,7 +127,6 @@
     </div>
   </div>
 
-  <!-- پنجره QR Code -->
   <div id="qr-modal" class="custom-modal">
     <div class="modal-box text-center">
       <h2 id="qr-title" style="color: #60a5fa; margin-bottom: 10px;"></h2>
@@ -145,7 +139,6 @@
     </div>
   </div>
 
-  <!-- پنجره ویرایش پروژه -->
   <div id="edit-modal" class="custom-modal">
     <div class="modal-box">
       <h2 style="color: #60a5fa; margin-bottom: 20px; text-align: center;">✏️ ویرایش پروژه</h2>
@@ -168,12 +161,12 @@
           <textarea id="edit-description" class="form-input" required style="height: 80px; resize:none;"></textarea>
         </div>
         <div class="form-group">
-          <label>عکس جدید (اختیاری - در صورت خالی بودن، عکس قبلی می‌ماند)</label>
-          <input type="file" id="edit-image" accept="image/*" class="form-input" style="padding: 10px;">
+          <label>آدرس عکس جدید</label>
+          <input type="url" id="edit-image" class="form-input">
         </div>
         <div class="form-group">
-          <label>ویدیو جدید (اختیاری - در صورت خالی بودن، ویدیو قبلی می‌ماند)</label>
-          <input type="file" id="edit-video" accept="video/*" class="form-input" style="padding: 10px;">
+          <label>آدرس ویدیو جدید</label>
+          <input type="url" id="edit-video" class="form-input">
         </div>
         <div style="display:flex; gap:10px;">
           <button type="submit" class="btn-primary" style="background: #10b981;" id="edit-submit-btn">💾 ذخیره تغییرات</button>
