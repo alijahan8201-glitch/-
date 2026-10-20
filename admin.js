@@ -24,26 +24,28 @@ document.getElementById('add-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
-  btn.textContent = 'در حال آپلود...';
+  btn.textContent = 'در حال ذخیره...';
 
-  const formData = new FormData();
-  formData.append('password', document.getElementById('password').value);
-  formData.append('title', document.getElementById('title').value.trim());
-  formData.append('team_name', document.getElementById('team').value.trim());
-  formData.append('description', document.getElementById('description').value.trim());
-  
-  const imageFile = document.getElementById('image').files[0];
-  const videoFile = document.getElementById('video').files[0];
-  if (imageFile) formData.append('image', imageFile);
-  if (videoFile) formData.append('video', videoFile);
+  const dataToSend = {
+    password: document.getElementById('password').value,
+    title: document.getElementById('title').value.trim(),
+    team_name: document.getElementById('team').value.trim(),
+    description: document.getElementById('description').value.trim(),
+    image_url: document.getElementById('image_url').value.trim(),
+    video_url: document.getElementById('video_url').value.trim()
+  };
 
   try {
-    const response = await fetch(`${API_URL}/admin/add`, { method: 'POST', body: formData });
+    const response = await fetch(`${API_URL}/admin/add`, { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dataToSend) 
+    });
     const data = await response.json();
 
     if (data.success) {
       showToast('پروژه با موفقیت اضافه شد ✅', 'success');
-      savedPassword = document.getElementById('password').value;
+      savedPassword = dataToSend.password;
       sessionStorage.setItem('admin_password', savedPassword);
       document.getElementById('add-form').reset();
       document.getElementById('password').value = savedPassword;
@@ -130,6 +132,8 @@ function openEditModal(projectId) {
   document.getElementById('edit-title').value = project.title;
   document.getElementById('edit-team').value = project.team_name || '';
   document.getElementById('edit-description').value = project.description;
+  document.getElementById('edit-image').value = project.image_url || '';
+  document.getElementById('edit-video').value = project.video_url || '';
   
   if (savedPassword) document.getElementById('edit-password').value = savedPassword;
   
@@ -143,27 +147,26 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
   btn.textContent = 'در حال ذخیره...';
 
   const id = document.getElementById('edit-id').value;
-  const formData = new FormData();
-  formData.append('password', document.getElementById('edit-password').value);
-  formData.append('title', document.getElementById('edit-title').value.trim());
-  formData.append('team_name', document.getElementById('edit-team').value.trim());
-  formData.append('description', document.getElementById('edit-description').value.trim());
-  
-  const imageFile = document.getElementById('edit-image').files[0];
-  const videoFile = document.getElementById('edit-video').files[0];
-  if (imageFile) formData.append('image', imageFile);
-  if (videoFile) formData.append('video', videoFile);
+  const dataToSend = {
+    password: document.getElementById('edit-password').value,
+    title: document.getElementById('edit-title').value.trim(),
+    team_name: document.getElementById('edit-team').value.trim(),
+    description: document.getElementById('edit-description').value.trim(),
+    image_url: document.getElementById('edit-image').value.trim(),
+    video_url: document.getElementById('edit-video').value.trim()
+  };
 
   try {
     const response = await fetch(`${API_URL}/admin/edit/${id}`, {
       method: 'PUT',
-      body: formData
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dataToSend)
     });
     const data = await response.json();
 
     if (data.success) {
       showToast('پروژه با موفقیت ویرایش شد ✅', 'success');
-      savedPassword = document.getElementById('edit-password').value;
+      savedPassword = dataToSend.password;
       sessionStorage.setItem('admin_password', savedPassword);
       document.getElementById('edit-modal').style.display = 'none';
       document.getElementById('edit-form').reset();
