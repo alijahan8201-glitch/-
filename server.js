@@ -38,7 +38,6 @@ db.serialize(() => {
         vote_count INTEGER DEFAULT 0
     )`);
 
-    // جدول رای‌ها با نام، نام خانوادگی و شماره
     db.run(`CREATE TABLE IF NOT EXISTS votes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         project_id INTEGER,
@@ -65,22 +64,18 @@ app.get('/api/projects', (req, res) => {
     });
 });
 
-// ثبت امتیاز با اطلاعات هویتی
 app.post('/api/rate', (req, res) => {
     const { project_id, voter_id, first_name, last_name, phone_number, score } = req.body;
-
     db.get("SELECT * FROM votes WHERE project_id = ? AND voter_id = ?", [project_id, voter_id], (err, row) => {
         if (row) return res.json({ success: false, message: "شما قبلاً به این پروژه امتیاز داده‌اید" });
-
-        db.run("INSERT INTO votes (project_id, voter_id, first_name, last_name, phone_number, score) VALUES (?, ?, ?, ?, ?, ?)",
-            [project_id, voter_id, first_name, last_name, phone_number, score], function (err) {
-                if (err) return res.status(500).json({ error: err.message });
-
-                db.run("UPDATE projects SET total_score = total_score + ?, vote_count = vote_count + 1 WHERE id = ?",
-                    [score, project_id], function (err) {
-                        res.json({ success: true, message: "امتیاز شما با موفقیت ثبت شد!" });
-                    });
+        db.run("INSERT INTO votes (project_id, voter_id, first_name, last_name, phone_number, score) VALUES (?, ?, ?, ?, ?, ?)", 
+        [project_id, voter_id, first_name, last_name, phone_number, score], function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            db.run("UPDATE projects SET total_score = total_score + ?, vote_count = vote_count + 1 WHERE id = ?", 
+            [score, project_id], function(err) {
+                res.json({ success: true, message: "امتیاز شما با موفقیت ثبت شد!" });
             });
+        });
     });
 });
 
@@ -92,31 +87,48 @@ app.post('/api/admin/add', upload.fields([{ name: 'image', maxCount: 1 }, { name
     const video_url = req.files['video'] ? 'uploads/' + req.files['video'][0].filename : '';
 
     db.run("INSERT INTO projects (title, description, team_name, image_url, video_url) VALUES (?, ?, ?, ?, ?)",
-        [title, description, team_name, image_url, video_url], function (err) {
+        [title, description, team_name, image_url, video_url], function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ success: true, message: "پروژه اضافه شد" });
         });
 });
 
+// مسیر جدید برای ویرایش پروژه
+app.put('/api/admin/edit/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }]), (req, res) => {
+    const { password, title, description, team_name } = req.body;
+    if (password !== '123456') return res.json({ success: false, message: "رمز عبور اشتباه است" });
+
+    const id = req.params.id;
+    // اول اطلاعات قبلی رو می‌گیریم که اگه فایل جدید آپلود نشد، فایل قبلی حفظ بشه
+    db.get("SELECT image_url, video_url FROM projects WHERE id = ?", [id], (err, row) => {
+        if (err || !row) return res.status(500).json({ error: "پروژه پیدا نشد" });
+
+        const image_url = req.files['image'] ? 'uploads/' + req.files['image'][0].filename : row.image_url;
+        const video_url = req.files['video'] ? 'uploads/' + req.files['video'][0].filename : row.video_url;
+
+        db.run("UPDATE projects SET title = ?, description = ?, team_name = ?, image_url = ?, video_url = ? WHERE id = ?",
+            [title, description, team_name, image_url, video_url, id], function(err) {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json({ success: true, message: "پروژه با موفقیت ویرایش شد" });
+            });
+    });
+});
+
 app.delete('/api/admin/delete/:id', (req, res) => {
     const { password } = req.body;
     if (password !== '123456') return res.json({ success: false, message: "رمز اشتباه است" });
-
     db.run("DELETE FROM votes WHERE project_id = ?", [req.params.id], (err) => {
-        db.run("DELETE FROM projects WHERE id = ?", [req.params.id], function (err) {
+        db.run("DELETE FROM projects WHERE id = ?", [req.params.id], function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ success: true, message: "پروژه حذف شد" });
         });
     });
 });
 
-// لیست شرکت‌کننده‌ها
 app.get('/api/admin/participants', (req, res) => {
     const query = `
         SELECT v.first_name, v.last_name, v.phone_number, v.score, p.title as project_title, v.created_at 
-        FROM votes v 
-        JOIN projects p ON v.project_id = p.id 
-        ORDER BY v.created_at DESC
+        FROM votes v JOIN projects p ON v.project_id = p.id ORDER BY v.created_at DESC
     `;
     db.all(query, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -124,18 +136,12 @@ app.get('/api/admin/participants', (req, res) => {
     });
 });
 
-// قرعه‌کشی بر اساس نام و نام خانوادگی
 app.get('/api/admin/draw', (req, res) => {
     db.all("SELECT first_name, last_name, phone_number FROM votes", [], (err, rows) => {
         if (err || rows.length === 0) return res.json({ success: false, message: "شرکت‌کننده‌ای یافت نشد" });
-
         const randomIndex = Math.floor(Math.random() * rows.length);
         const winner = rows[randomIndex];
-        res.json({
-            success: true,
-            name: `${winner.first_name} ${winner.last_name}`,
-            phone: winner.phone_number
-        });
+        res.json({ success: true, name: `${winner.first_name} ${winner.last_name}`, phone: winner.phone_number });
     });
 });
 
