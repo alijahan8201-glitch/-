@@ -1,5 +1,6 @@
 const API_URL = '/api';
 
+// ==================== توابع کمکی ====================
 function getVoterId() {
   let voterId = localStorage.getItem('voter_id');
   if (!voterId) {
@@ -10,6 +11,7 @@ function getVoterId() {
 }
 const VOTER_ID = getVoterId();
 
+// گرفتن اطلاعات کاربر از حافظه مرورگر
 let userInfo = JSON.parse(localStorage.getItem('user_info') || 'null');
 
 function showToast(message, type = 'info') {
@@ -19,6 +21,41 @@ function showToast(message, type = 'info') {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
+function getVotedProjects() { 
+  return JSON.parse(localStorage.getItem('voted_projects') || '[]'); 
+}
+
+function markAsVoted(projectId) {
+  const voted = getVotedProjects();
+  if (!voted.includes(projectId)) {
+    voted.push(projectId);
+    localStorage.setItem('voted_projects', JSON.stringify(voted));
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+// تبدیل لینک ویدیوهای یوتیوب و آپارات
+function getVideoHtml(url) {
+  if (!url) return '';
+  if (url.includes('uploads/') || url.endsWith('.mp4')) {
+    return `<video src="${url}" controls></video>`;
+  }
+  let embedUrl = url;
+  if (url.includes('youtube.com/watch?v=')) embedUrl = url.replace('watch?v=', 'embed/');
+  if (url.includes('youtu.be/')) embedUrl = url.replace('youtu.be/', 'youtube.com/embed/');
+  if (url.includes('aparat.com/v/')) {
+    const id = url.split('/v/')[1].split('/')[0];
+    embedUrl = `https://www.aparat.com/video/video/embed/videohash/${id}/vt/frame`;
+  }
+  return `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
+}
+
+// ==================== مدیریت صفحات (خوش‌آمد و ثبت‌نام) ====================
 document.getElementById('to-info-btn').addEventListener('click', () => {
   document.getElementById('welcome-screen').style.display = 'none';
   document.getElementById('info-screen').style.display = 'block';
@@ -42,36 +79,14 @@ document.getElementById('start-btn').addEventListener('click', () => {
   loadProjects();
 });
 
+// اگر کاربر قبلا ثبت نام کرده بود، مستقیم بره به صفحه پروژه‌ها
 if (userInfo) {
   document.getElementById('welcome-screen').style.display = 'none';
   document.getElementById('main-screen').style.display = 'block';
   loadProjects();
 }
 
-function getVotedProjects() { return JSON.parse(localStorage.getItem('voted_projects') || '[]'); }
-function markAsVoted(projectId) {
-  const voted = getVotedProjects();
-  if (!voted.includes(projectId)) {
-    voted.push(projectId);
-    localStorage.setItem('voted_projects', JSON.stringify(voted));
-  }
-}
-
-function getVideoHtml(url) {
-  if (!url) return '';
-  if (url.includes('uploads/') || url.endsWith('.mp4')) {
-    return `<video src="${url}" controls></video>`;
-  }
-  let embedUrl = url;
-  if (url.includes('youtube.com/watch?v=')) embedUrl = url.replace('watch?v=', 'embed/');
-  if (url.includes('youtu.be/')) embedUrl = url.replace('youtu.be/', 'youtube.com/embed/');
-  if (url.includes('aparat.com/v/')) {
-    const id = url.split('/v/')[1].split('/')[0];
-    embedUrl = `https://www.aparat.com/video/video/embed/videohash/${id}/vt/frame`;
-  }
-  return `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
-}
-
+// ==================== مدیریت پروژه‌ها و مودال ====================
 let allProjects = [];
 let currentSelectedScore = 0;
 let currentProjectId = null;
@@ -123,6 +138,8 @@ function openModal(projectId) {
   } else {
     document.getElementById('rating-section').style.display = 'block';
     document.getElementById('already-rated-msg').style.display = 'none';
+    
+    // ریست کردن فرم امتیازدهی
     currentSelectedScore = 0;
     document.getElementById('submit-rating-btn').disabled = true;
     document.querySelectorAll('.rate-btn').forEach(btn => btn.classList.remove('selected'));
@@ -147,6 +164,7 @@ function selectScore(score) {
   document.getElementById('submit-rating-btn').disabled = false;
 }
 
+// ==================== ثبت امتیاز و پاپ‌آپ تشکر ====================
 async function submitRating() {
   const btn = document.getElementById('submit-rating-btn');
   btn.disabled = true;
@@ -168,10 +186,21 @@ async function submitRating() {
     const data = await response.json();
 
     if (data.success) {
-      showToast('امتیاز شما با موفقیت ثبت شد! ✅', 'success');
+      // چک میکنیم آیا این اولین رأی کاربر است یا نه
+      const votedList = getVotedProjects();
+      const isFirstVote = votedList.length === 0;
+
       markAsVoted(currentProjectId);
       closeModal();
       loadProjects();
+
+      if (isFirstVote) {
+        // نمایش پاپ‌آپ ویژه برای اولین رأی
+        document.getElementById('thank-you-modal').style.display = 'flex';
+      } else {
+        // نمایش پیام ساده برای رأی‌های بعدی
+        showToast('امتیاز شما با موفقیت ثبت شد! ✅', 'success');
+      }
     } else {
       showToast(data.message, 'error');
       btn.disabled = false;
@@ -184,21 +213,19 @@ async function submitRating() {
   }
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str || '';
-  return div.innerHTML;
+// بستن پاپ‌آپ تشکر
+function closeThankYouModal() {
+  document.getElementById('thank-you-modal').style.display = 'none';
 }
 
+// ==================== بارگذاری اولیه و بررسی QR Code ====================
 async function loadProjects() {
   try {
     const response = await fetch(`${API_URL}/projects`);
     const data = await response.json();
     renderProjects(data);
 
-    // ==========================================
     // بخش جدید: بررسی اینکه آیا کاربر از طریق QR Code وارد شده است یا نه
-    // ==========================================
     const urlParams = new URLSearchParams(window.location.search);
     const projectIdFromUrl = urlParams.get('p');
 
