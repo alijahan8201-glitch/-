@@ -1,4 +1,5 @@
 const API_URL = '/api';
+let currentProjects = []; // برای نگه داشتن لیست پروژه‌ها
 
 function showToast(message, type = 'info') {
   const toast = document.getElementById('toast');
@@ -66,6 +67,7 @@ async function loadProjectsList() {
   try {
     const response = await fetch(`${API_URL}/projects`);
     const data = await response.json();
+    currentProjects = data; // ذخیره دیتا برای استفاده در QR
 
     if (data.length === 0) {
       container.innerHTML = '<div>هیچ پروژه‌ای وجود ندارد</div>';
@@ -79,7 +81,7 @@ async function loadProjectsList() {
           <span style="color:#8b5cf6; margin-right:10px;">(میانگین: ${p.avg_score})</span>
         </div>
         <div style="display:flex; gap:10px;">
-          <button onclick="showQRCode(${p.id}, '${p.title}')" style="background:#3b82f6; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer;">QR Code 📱</button>
+          <button onclick="showQRCode(${p.id})" style="background:#3b82f6; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer;">QR Code 📱</button>
           <button class="delete-btn" onclick="deleteProject(${p.id})">حذف</button>
         </div>
       </div>
@@ -89,11 +91,16 @@ async function loadProjectsList() {
   }
 }
 
-// تابع ساخت و نمایش QR Code
-function showQRCode(projectId, title) {
+// تابع ساخت و نمایش QR Code (تغییر یافته برای نمایش اسم تیم)
+function showQRCode(projectId) {
+  // پیدا کردن پروژه با آیدی داده شده
+  const project = currentProjects.find(p => p.id === projectId);
+  const teamName = project && project.team_name ? project.team_name : 'بدون نام';
+  
   const siteUrl = window.location.origin + `/?p=${projectId}`;
   
-  document.getElementById('qr-title').textContent = title;
+  // قرار دادن اسم تیم بالای QR
+  document.getElementById('qr-title').textContent = teamName;
   document.getElementById('qr-modal').style.display = 'flex';
   
   const qrContainer = document.getElementById('qrcode');
