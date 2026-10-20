@@ -1,28 +1,11 @@
 const express = require('express');
 const { createClient } = require('@libsql/client');
 const cors = require('cors');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
-
-if (!fs.existsSync('./uploads')) {
-    fs.mkdirSync('./uploads');
-}
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) { cb(null, './uploads/'); },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage: storage });
 
 // اتصال به دیتابیس ابری Turso
 const db = createClient({
@@ -79,6 +62,12 @@ app.get('/api/projects', async (req, res) => {
 // ثبت امتیاز جدید
 app.post('/api/rate', async (req, res) => {
     const { project_id, voter_id, first_name, last_name, phone_number, score } = req.body;
+    
+    const phoneRegex = /^09\d{9}$/;
+    if (!phoneRegex.test(phone_number)) {
+        return res.status(400).json({ success: false, message: "شماره موبایل نامعتبر است" });
+    }
+
     try {
         const existing = await db.execute({
             sql: "SELECT * FROM votes WHERE project_id = ? AND voter_id = ?",
@@ -105,13 +94,10 @@ app.post('/api/rate', async (req, res) => {
     }
 });
 
-// افزودن پروژه جدید
-app.post('/api/admin/add', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }]), async (req, res) => {
-    const { password, title, description, team_name } = req.body;
+// افزودن پروژه جدید (فقط لینک)
+app.post('/api/admin/add', async (req, res) => {
+    const { password, title, description, team_name, image_url, video_url } = req.body;
     if (password !== '123456') return res.json({ success: false, message: "رمز عبور اشتباه است" });
-
-    const image_url = req.files['image'] ? 'uploads/' + req.files['image'][0].filename : '';
-    const video_url = req.files['video'] ? 'uploads/' + req.files['video'][0].filename : '';
 
     try {
         await db.execute({
@@ -124,24 +110,13 @@ app.post('/api/admin/add', upload.fields([{ name: 'image', maxCount: 1 }, { name
     }
 });
 
-// ویرایش پروژه
-app.put('/api/admin/edit/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }]), async (req, res) => {
-    const { password, title, description, team_name } = req.body;
+// ویرایش پروژه (فقط لینک)
+app.put('/api/admin/edit/:id', async (req, res) => {
+    const { password, title, description, team_name, image_url, video_url } = req.body;
     if (password !== '123456') return res.json({ success: false, message: "رمز عبور اشتباه است" });
 
     const id = req.params.id;
     try {
-        const result = await db.execute({
-            sql: "SELECT image_url, video_url FROM projects WHERE id = ?",
-            args: [id]
-        });
-        
-        if (result.rows.length === 0) return res.status(404).json({ error: "پروژه پیدا نشد" });
-        
-        const row = result.rows[0];
-        const image_url = req.files['image'] ? 'uploads/' + req.files['image'][0].filename : row.image_url;
-        const video_url = req.files['video'] ? 'uploads/' + req.files['video'][0].filename : row.video_url;
-
         await db.execute({
             sql: "UPDATE projects SET title = ?, description = ?, team_name = ?, image_url = ?, video_url = ? WHERE id = ?",
             args: [title, description, team_name, image_url, video_url, id]
