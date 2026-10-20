@@ -1,5 +1,5 @@
 const API_URL = '/api';
-let currentProjects = []; // برای نگه داشتن لیست پروژه‌ها
+let currentProjects = []; 
 
 function showToast(message, type = 'info') {
   const toast = document.getElementById('toast');
@@ -15,6 +15,7 @@ function openTab(tabId) {
   event.target.classList.add('active');
 
   if (tabId === 'tab-participants') loadParticipants();
+  if (tabId === 'tab-leaderboard') loadLeaderboard();
 }
 
 let savedPassword = sessionStorage.getItem('admin_password') || '';
@@ -23,7 +24,7 @@ document.getElementById('add-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
-  btn.textContent = 'در حال آپلود و ذخیره...';
+  btn.textContent = 'در حال آپلود...';
 
   const formData = new FormData();
   formData.append('password', document.getElementById('password').value);
@@ -33,15 +34,11 @@ document.getElementById('add-form').addEventListener('submit', async (e) => {
   
   const imageFile = document.getElementById('image').files[0];
   const videoFile = document.getElementById('video').files[0];
-  
   if (imageFile) formData.append('image', imageFile);
   if (videoFile) formData.append('video', videoFile);
 
   try {
-    const response = await fetch(`${API_URL}/admin/add`, {
-      method: 'POST',
-      body: formData
-    });
+    const response = await fetch(`${API_URL}/admin/add`, { method: 'POST', body: formData });
     const data = await response.json();
 
     if (data.success) {
@@ -67,7 +64,7 @@ async function loadProjectsList() {
   try {
     const response = await fetch(`${API_URL}/projects`);
     const data = await response.json();
-    currentProjects = data; // ذخیره دیتا برای استفاده در QR
+    currentProjects = data;
 
     if (data.length === 0) {
       container.innerHTML = '<div>هیچ پروژه‌ای وجود ندارد</div>';
@@ -75,13 +72,14 @@ async function loadProjectsList() {
     }
 
     container.innerHTML = data.map(p => `
-      <div class="admin-project-item" style="display:flex; justify-content:space-between; align-items:center; padding:15px; border-radius:12px; margin-bottom:10px; background:rgba(255,255,255,0.05);">
+      <div class="admin-project-item" style="display:flex; justify-content:space-between; align-items:center; padding:15px; border-radius:12px; margin-bottom:10px; background:rgba(255,255,255,0.05); flex-wrap: wrap; gap: 10px;">
         <div>
           <strong>${p.title}</strong>
           <span style="color:#8b5cf6; margin-right:10px;">(میانگین: ${p.avg_score})</span>
         </div>
-        <div style="display:flex; gap:10px;">
-          <button onclick="showQRCode(${p.id})" style="background:#3b82f6; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer;">QR Code 📱</button>
+        <div style="display:flex; gap:8px;">
+          <button onclick="openEditModal(${p.id})" style="background:#f59e0b; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer;">ویرایش ✏️</button>
+          <button onclick="showQRCode(${p.id})" style="background:#3b82f6; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer;">QR 📱</button>
           <button class="delete-btn" onclick="deleteProject(${p.id})">حذف</button>
         </div>
       </div>
@@ -91,27 +89,110 @@ async function loadProjectsList() {
   }
 }
 
-// تابع ساخت و نمایش QR Code (تغییر یافته برای نمایش اسم تیم)
+async function loadLeaderboard() {
+  const tbody = document.getElementById('leaderboard-body');
+  tbody.innerHTML = '<tr><td colspan="5">در حال بارگذاری...</td></tr>';
+  
+  try {
+    const response = await fetch(`${API_URL}/projects`);
+    const data = await response.json(); 
+
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5">هنوز پروژه‌ای وجود ندارد.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.map((p, index) => {
+      let medal = index + 1;
+      if (index === 0) medal = '🥇 ۱';
+      else if (index === 1) medal = '🥈 ۲';
+      else if (index === 2) medal = '🥉 ۳';
+
+      return `
+      <tr style="${index < 3 ? 'background: rgba(245, 158, 11, 0.1);' : ''}">
+        <td style="font-size: 1.2rem; font-weight: bold;">${medal}</td>
+        <td style="color:#fff; font-weight: bold;">${p.title}</td>
+        <td style="color:#a78bfa;">${p.team_name || '-'}</td>
+        <td style="color:#fbbf24; font-weight: bold; font-size: 1.1rem;">${p.avg_score}</td>
+        <td>${p.vote_count} نفر</td>
+      </tr>
+    `}).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="5" style="color:red;">خطا در بارگذاری</td></tr>';
+  }
+}
+
+function openEditModal(projectId) {
+  const project = currentProjects.find(p => p.id === projectId);
+  if (!project) return;
+
+  document.getElementById('edit-id').value = project.id;
+  document.getElementById('edit-title').value = project.title;
+  document.getElementById('edit-team').value = project.team_name || '';
+  document.getElementById('edit-description').value = project.description;
+  
+  if (savedPassword) document.getElementById('edit-password').value = savedPassword;
+  
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
+document.getElementById('edit-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('edit-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'در حال ذخیره...';
+
+  const id = document.getElementById('edit-id').value;
+  const formData = new FormData();
+  formData.append('password', document.getElementById('edit-password').value);
+  formData.append('title', document.getElementById('edit-title').value.trim());
+  formData.append('team_name', document.getElementById('edit-team').value.trim());
+  formData.append('description', document.getElementById('edit-description').value.trim());
+  
+  const imageFile = document.getElementById('edit-image').files[0];
+  const videoFile = document.getElementById('edit-video').files[0];
+  if (imageFile) formData.append('image', imageFile);
+  if (videoFile) formData.append('video', videoFile);
+
+  try {
+    const response = await fetch(`${API_URL}/admin/edit/${id}`, {
+      method: 'PUT',
+      body: formData
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      showToast('پروژه با موفقیت ویرایش شد ✅', 'success');
+      savedPassword = document.getElementById('edit-password').value;
+      sessionStorage.setItem('admin_password', savedPassword);
+      document.getElementById('edit-modal').style.display = 'none';
+      document.getElementById('edit-form').reset();
+      loadProjectsList();
+    } else {
+      showToast(data.message, 'error');
+    }
+  } catch (err) {
+    showToast('خطا در ارتباط با سرور', 'error');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '💾 ذخیره تغییرات';
+});
+
 function showQRCode(projectId) {
-  // پیدا کردن پروژه با آیدی داده شده
   const project = currentProjects.find(p => p.id === projectId);
   const teamName = project && project.team_name ? project.team_name : 'بدون نام';
-  
   const siteUrl = window.location.origin + `/?p=${projectId}`;
   
-  // قرار دادن اسم تیم بالای QR
   document.getElementById('qr-title').textContent = teamName;
   document.getElementById('qr-modal').style.display = 'flex';
   
   const qrContainer = document.getElementById('qrcode');
-  qrContainer.innerHTML = ''; // پاک کردن قبلی
+  qrContainer.innerHTML = '';
   
   new QRCode(qrContainer, {
-    text: siteUrl,
-    width: 250,
-    height: 250,
-    colorDark : "#0f172a",
-    colorLight : "#ffffff",
+    text: siteUrl, width: 250, height: 250,
+    colorDark : "#0f172a", colorLight : "#ffffff",
     correctLevel : QRCode.CorrectLevel.H
   });
 }
