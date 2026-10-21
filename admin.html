@@ -56,8 +56,10 @@
           <textarea id="description" class="form-input" required placeholder="توضیح کامل..." style="height: 100px; resize: none;"></textarea>
         </div>
         <div class="form-group">
-          <label>آدرس عکس (لینک مستقیم)</label>
-          <input type="url" id="image_url" class="form-input" placeholder="https://uupload.ir/...">
+          <label>انتخاب عکس از کامپیوتر (پیشنهادی)</label>
+          <input type="file" id="image_file" accept="image/*" class="form-input" style="padding: 10px;">
+          <label style="font-size: 0.85rem; color: #94a3b8; margin-top:5px; display:block;">یا لینک عکس را وارد کنید:</label>
+          <input type="url" id="image_url_text" class="form-input" placeholder="https://example.com/image.jpg">
         </div>
         <div class="form-group">
           <label>آدرس ویدیو (لینک یوتیوب یا آپارات)</label>
@@ -73,21 +75,11 @@
     </div>
 
     <div id="tab-leaderboard" class="tab-content">
-      <h3 style="margin-bottom: 15px; color: #fff;">🏆 رتبه‌بندی پروژه‌ها بر اساس امتیاز</h3>
+      <h3 style="margin-bottom: 15px; color: #fff;">🏆 رتبه‌بندی پروژه‌ها</h3>
       <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 16px;">
         <table class="participant-table" id="leaderboard-table">
-          <thead>
-            <tr>
-              <th>رتبه</th>
-              <th>پروژه</th>
-              <th>تیم</th>
-              <th>میانگین امتیاز</th>
-              <th>تعداد رأی</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboard-body">
-            <tr><td colspan="5">در حال بارگذاری...</td></tr>
-          </tbody>
+          <thead><tr><th>رتبه</th><th>پروژه</th><th>تیم</th><th>میانگین</th><th>تعداد رأی</th></tr></thead>
+          <tbody id="leaderboard-body"><tr><td colspan="5">در حال بارگذاری...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -96,26 +88,16 @@
       <h3 style="margin-bottom: 15px; color: #fff;">لیست شرکت‌کننده‌ها</h3>
       <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 16px;">
         <table class="participant-table" id="participants-table">
-          <thead>
-            <tr>
-              <th>نام</th>
-              <th>نام خانوادگی</th>
-              <th>شماره تماس</th>
-              <th>امتیاز</th>
-              <th>پروژه</th>
-            </tr>
-          </thead>
-          <tbody id="participants-body">
-            <tr><td colspan="5">در حال بارگذاری...</td></tr>
-          </tbody>
+          <thead><tr><th>نام</th><th>نام خانوادگی</th><th>شماره تماس</th><th>امتیاز</th><th>پروژه</th></tr></thead>
+          <tbody id="participants-body"><tr><td colspan="5">در حال بارگذاری...</td></tr></tbody>
         </table>
       </div>
     </div>
 
     <div id="tab-draw" class="tab-content">
       <div class="draw-box">
-        <h3 style="color: #fff; font-size: 1.5rem;">قرعه‌کشی ویژه نمایشگاه</h3>
-        <p style="color: #94a3b8; margin-top: 10px;">دکمه زیر را بزنید تا یک برنده به صورت شانسی انتخاب شود.</p>
+        <h3 style="color: #fff; font-size: 1.5rem;">قرعه‌کشی ویژه</h3>
+        <p style="color: #94a3b8; margin-top: 10px;">دکمه زیر را بزنید.</p>
         <div id="winner-display">-</div>
         <div id="winner-phone"></div>
         <button class="btn-primary" onclick="startDraw()" id="draw-btn" style="max-width: 300px; margin: 0 auto;">🎲 شروع قرعه‌کشی</button>
@@ -127,11 +109,11 @@
     </div>
   </div>
 
+  <!-- مودال QR -->
   <div id="qr-modal" class="custom-modal">
     <div class="modal-box text-center">
       <h2 id="qr-title" style="color: #60a5fa; margin-bottom: 10px;"></h2>
       <div id="qrcode"></div>
-      <p style="font-size: 0.9rem; color: #94a3b8;">برای رأی دادن، این کد را با دوربین گوشی اسکن کنید</p>
       <div style="display:flex; justify-content:center; gap:10px; margin-top:20px;">
         <button class="print-btn" onclick="window.print()">🖨️ پرینت</button>
         <button class="print-btn" style="background:#ef4444;" onclick="document.getElementById('qr-modal').style.display='none'">بستن</button>
@@ -139,37 +121,25 @@
     </div>
   </div>
 
+  <!-- مودال ویرایش -->
   <div id="edit-modal" class="custom-modal">
     <div class="modal-box">
       <h2 style="color: #60a5fa; margin-bottom: 20px; text-align: center;">✏️ ویرایش پروژه</h2>
       <form id="edit-form">
         <input type="hidden" id="edit-id">
+        <div class="form-group"><label>رمز ادمین</label><input type="password" id="edit-password" class="form-input" required></div>
+        <div class="form-group"><label>عنوان پروژه</label><input type="text" id="edit-title" class="form-input" required></div>
+        <div class="form-group"><label>نام تیم</label><input type="text" id="edit-team" class="form-input"></div>
+        <div class="form-group"><label>توضیحات</label><textarea id="edit-description" class="form-input" required style="height: 80px; resize:none;"></textarea></div>
         <div class="form-group">
-          <label>رمز ادمین (برای تایید)</label>
-          <input type="password" id="edit-password" class="form-input" required>
+            <label>عکس جدید (اختیاری)</label>
+            <input type="file" id="edit-image-file" accept="image/*" class="form-input" style="padding: 10px;">
+            <label style="font-size: 0.85rem; color: #94a3b8; margin-top:5px; display:block;">یا لینک عکس جدید:</label>
+            <input type="url" id="edit-image-text" class="form-input">
         </div>
-        <div class="form-group">
-          <label>عنوان پروژه</label>
-          <input type="text" id="edit-title" class="form-input" required>
-        </div>
-        <div class="form-group">
-          <label>نام تیم</label>
-          <input type="text" id="edit-team" class="form-input">
-        </div>
-        <div class="form-group">
-          <label>توضیحات</label>
-          <textarea id="edit-description" class="form-input" required style="height: 80px; resize:none;"></textarea>
-        </div>
-        <div class="form-group">
-          <label>آدرس عکس جدید</label>
-          <input type="url" id="edit-image" class="form-input">
-        </div>
-        <div class="form-group">
-          <label>آدرس ویدیو جدید</label>
-          <input type="url" id="edit-video" class="form-input">
-        </div>
+        <div class="form-group"><label>آدرس ویدیو جدید</label><input type="url" id="edit-video" class="form-input"></div>
         <div style="display:flex; gap:10px;">
-          <button type="submit" class="btn-primary" style="background: #10b981;" id="edit-submit-btn">💾 ذخیره تغییرات</button>
+          <button type="submit" class="btn-primary" style="background: #10b981;" id="edit-submit-btn">💾 ذخیره</button>
           <button type="button" class="btn-primary" style="background: #ef4444;" onclick="document.getElementById('edit-modal').style.display='none'">انصراف</button>
         </div>
       </form>
@@ -177,7 +147,6 @@
   </div>
 
   <div id="toast" class="toast"></div>
-  
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="admin.js"></script>
 </body>
