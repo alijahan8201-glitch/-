@@ -33,6 +33,7 @@ document.getElementById('add-form').addEventListener('submit', async (e) => {
   formData.append('image_url_text', document.getElementById('image_url_text').value.trim());
   formData.append('video_url', document.getElementById('video_url').value.trim());
   formData.append('category', document.getElementById('category').value);
+  formData.append('is_creator', document.getElementById('is_creator').value); // ارسال وضعیت سازنده
   
   const imageFile = document.getElementById('image_file').files[0];
   if (imageFile) formData.append('image', imageFile);
@@ -48,12 +49,8 @@ document.getElementById('add-form').addEventListener('submit', async (e) => {
       document.getElementById('add-form').reset();
       document.getElementById('password').value = savedPassword;
       loadProjectsList();
-    } else {
-      showToast(data.message, 'error');
-    }
-  } catch (err) {
-    showToast('خطا در ارتباط با سرور', 'error');
-  }
+    } else { showToast(data.message, 'error'); }
+  } catch (err) { showToast('خطا در ارتباط با سرور', 'error'); }
   btn.disabled = false;
   btn.textContent = '➕ افزودن پروژه';
 });
@@ -71,7 +68,7 @@ async function loadProjectsList() {
       <div class="admin-project-item">
         <div>
           <strong>${p.title}</strong> <span style="color:#8b5cf6; margin-right:10px;">(میانگین: ${p.avg_score})</span>
-          ${p.category === 'creator' ? '<span style="color:#fbbf24; margin-right:10px;">👑 سازنده</span>' : ''}
+          ${p.is_creator == 1 ? '<span style="color:#fbbf24; margin-right:10px; font-weight:bold;">👑 سازنده</span>' : ''}
         </div>
         <div style="display:flex; gap:8px;">
           <button onclick="openEditModal(${p.id})" style="background:#f59e0b; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer;">ویرایش ✏️</button>
@@ -109,6 +106,7 @@ function openEditModal(projectId) {
   document.getElementById('edit-image-text').value = project.image_url || '';
   document.getElementById('edit-image-file').value = ''; 
   document.getElementById('edit-category').value = project.category || 'robot';
+  document.getElementById('edit-is_creator').value = project.is_creator || '0'; // ست کردن مقدار سازنده
   if (savedPassword) document.getElementById('edit-password').value = savedPassword;
   document.getElementById('edit-modal').style.display = 'flex';
 }
@@ -128,6 +126,7 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
   formData.append('image_url_text', document.getElementById('edit-image-text').value.trim());
   formData.append('video_url', document.getElementById('edit-video').value.trim());
   formData.append('category', document.getElementById('edit-category').value);
+  formData.append('is_creator', document.getElementById('edit-is_creator').value);
   
   const imageFile = document.getElementById('edit-image-file').files[0];
   if (imageFile) formData.append('image', imageFile);
