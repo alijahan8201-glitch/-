@@ -68,13 +68,13 @@ async function loadProjectsList() {
     if (data.length === 0) { container.innerHTML = '<div>هیچ پروژه‌ای نیست</div>'; return; }
 
     container.innerHTML = data.map(p => `
-      <div class="admin-project-item" style="display:flex; justify-content:space-between; align-items:center; padding:18px; border-radius:16px; margin-bottom:12px; background:rgba(255,255,255,0.03); flex-wrap: wrap; gap: 15px; border: 1px solid rgba(255,255,255,0.05);">
+      <div class="admin-project-item" style="display:flex; justify-content:space-between; align-items:center; padding:15px; border-radius:12px; margin-bottom:10px; background:rgba(255,255,255,0.05); flex-wrap: wrap; gap: 10px;">
         <div>
-          <strong style="font-size:1.1rem;">${p.title}</strong> <span style="color:#a78bfa; margin-right:15px; font-weight:bold;">(میانگین: ${p.avg_score})</span>
+          <strong>${p.title}</strong> <span style="color:#8b5cf6; margin-right:10px;">(میانگین: ${p.avg_score})</span>
         </div>
-        <div style="display:flex; gap:10px;">
-          <button onclick="openEditModal(${p.id})" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:white; border:none; padding:10px 16px; border-radius:12px; cursor:pointer; font-family:inherit; transition:0.3s; font-weight:bold;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">ویرایش ✏️</button>
-          <button onclick="showQRCode(${p.id})" style="background:linear-gradient(135deg, #3b82f6, #2563eb); color:white; border:none; padding:10px 16px; border-radius:12px; cursor:pointer; font-family:inherit; transition:0.3s; font-weight:bold;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">QR 📱</button>
+        <div style="display:flex; gap:8px;">
+          <button onclick="openEditModal(${p.id})" style="background:#f59e0b; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer;">ویرایش ✏️</button>
+          <button onclick="showQRCode(${p.id})" style="background:#3b82f6; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer;">QR 📱</button>
           <button class="delete-btn" onclick="deleteProject(${p.id})">حذف</button>
         </div>
       </div>
@@ -92,7 +92,7 @@ async function loadLeaderboard() {
     tbody.innerHTML = data.map((p, index) => {
       let medal = index + 1;
       if (index === 0) medal = '🥇 ۱'; else if (index === 1) medal = '🥈 ۲'; else if (index === 2) medal = '🥉 ۳';
-      return `<tr style="${index < 3 ? 'background: rgba(245, 158, 11, 0.15);' : ''}"><td style="font-size: 1.3rem; font-weight: bold;">${medal}</td><td style="color:#fff; font-weight: bold; font-size:1.1rem;">${p.title}</td><td style="color:#a78bfa;">${p.team_name || '-'}</td><td style="color:#fbbf24; font-weight: bold; font-size: 1.2rem;">${p.avg_score}</td><td>${p.vote_count} نفر</td></tr>`;
+      return `<tr style="${index < 3 ? 'background: rgba(245, 158, 11, 0.1);' : ''}"><td style="font-size: 1.2rem; font-weight: bold;">${medal}</td><td style="color:#fff; font-weight: bold;">${p.title}</td><td style="color:#a78bfa;">${p.team_name || '-'}</td><td style="color:#fbbf24; font-weight: bold; font-size: 1.1rem;">${p.avg_score}</td><td>${p.vote_count} نفر</td></tr>`;
     }).join('');
   } catch (e) { tbody.innerHTML = '<tr><td colspan="5" style="color:red;">خطا</td></tr>'; }
 }
@@ -144,7 +144,7 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
     } else { showToast(data.message, 'error'); }
   } catch (err) { showToast('خطا در سرور', 'error'); }
   btn.disabled = false;
-  btn.textContent = '💾 ذخیره تغییرات';
+  btn.textContent = '💾 ذخیره';
 });
 
 function showQRCode(projectId) {
@@ -154,7 +154,7 @@ function showQRCode(projectId) {
   document.getElementById('qr-title').textContent = teamName;
   document.getElementById('qr-modal').style.display = 'flex';
   const qrContainer = document.getElementById('qrcode'); qrContainer.innerHTML = '';
-  new QRCode(qrContainer, { text: siteUrl, width: 250, height: 250, colorDark : "#05050a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
+  new QRCode(qrContainer, { text: siteUrl, width: 250, height: 250, colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
 }
 
 async function deleteProject(projectId) {
