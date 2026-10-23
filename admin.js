@@ -73,8 +73,8 @@ async function loadProjectsList() {
           <strong>${p.title}</strong> <span style="color:#8b5cf6; margin-right:10px;">(میانگین: ${p.avg_score})</span>
         </div>
         <div style="display:flex; gap:8px;">
-          <button onclick="openEditModal(${p.id})" style="background:#f59e0b; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer;">ویرایش ✏️</button>
-          <button onclick="showQRCode(${p.id})" style="background:#3b82f6; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer;">QR 📱</button>
+          <button onclick="openEditModal(${p.id})" style="background:#f59e0b; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-family:inherit; transition:0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">ویرایش ✏️</button>
+          <button onclick="showQRCode(${p.id})" style="background:#3b82f6; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-family:inherit; transition:0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">QR 📱</button>
           <button class="delete-btn" onclick="deleteProject(${p.id})">حذف</button>
         </div>
       </div>
