@@ -10,7 +10,6 @@
 <body>
   <div class="bg-shapes"></div>
 
-  <!-- صفحه ۱: خوش‌آمدگویی -->
   <div id="welcome-screen" class="glass-container">
     <img src="logo.png" alt="لوگو آموزشگاه" class="main-logo">
     <h1>نمایشگاه رباتیک و هوش مصنوعی</h1>
@@ -23,34 +22,24 @@
     <button id="to-info-btn" class="btn-primary">ورود به نمایشگاه</button>
   </div>
 
-  <!-- صفحه ۲: ثبت اطلاعات -->
   <div id="info-screen" class="glass-container" style="display: none;">
     <img src="logo.png" alt="لوگو آموزشگاه" class="small-logo">
     <h1>📝 ثبت اطلاعات</h1>
     <p>لطفاً اطلاعات خود را برای شرکت در قرعه‌کشی وارد کنید.</p>
-    <div class="form-group">
-      <input type="text" id="reg-firstname" class="form-input" placeholder="نام" required>
-    </div>
-    <div class="form-group">
-      <input type="text" id="reg-lastname" class="form-input" placeholder="نام خانوادگی" required>
-    </div>
-    <div class="form-group">
-      <input type="tel" id="reg-phone" class="form-input" placeholder="شماره موبایل" required>
-    </div>
+    <div class="form-group"><input type="text" id="reg-firstname" class="form-input" placeholder="نام" required></div>
+    <div class="form-group"><input type="text" id="reg-lastname" class="form-input" placeholder="نام خانوادگی" required></div>
+    <div class="form-group"><input type="tel" id="reg-phone" class="form-input" placeholder="شماره موبایل" required></div>
     <button id="start-btn" class="btn-primary">شروع رأی‌گیری</button>
   </div>
 
-  <!-- صفحه ۳: لیست پروژه‌ها -->
   <div id="main-screen" class="main-container" style="display: none;">
-    
-    <!-- هدر سایت -->
     <header class="main-header">
       <img src="logo.png" alt="لوگو آموزشگاه" class="header-logo">
       <h2>پروژه‌های نمایشگاه</h2>
       <p>برای مشاهده جزئیات و امتیازدهی، روی هر کارت کلیک کنید</p>
     </header>
 
-    <!-- 🌟 بخش سازنده (منتقل شده به بالا) 🌟 -->
+    <!-- بنر بالای صفحه (سازنده) -->
     <div class="dev-banner">
       <div class="dev-banner-img-wrapper">
         <img src="developer.jpg" alt="طراح و سازنده سایت" class="dev-banner-img" onerror="this.src='logo.png'">
@@ -58,12 +47,10 @@
       <div class="dev-banner-info">
         <h3>👨‍💻 طراح و توسعه‌دهنده سامانه</h3>
         <p>این سامانه با تلاش و کدنویسی اختصاصی <strong>پوریا جهانشاهی</strong> طراحی شده است.</p>
-        <p style="font-size: 0.85rem; color: #8b5cf6;">با همکاری مدیریت محترم آموزشگاه، جناب آقای سالاری</p>
         <button class="filter-btn creator-btn" onclick="filterProjects('creator', this)">👑 مشاهده پروژه سازنده</button>
       </div>
     </div>
 
-    <!-- تب‌های فیلتر -->
     <div class="filter-tabs">
       <button class="filter-btn active" onclick="filterProjects('all', this)">نمایش همه</button>
       <button class="filter-btn" onclick="filterProjects('robot', this)">🤖 ربات‌ها</button>
@@ -71,24 +58,33 @@
       <button class="filter-btn podium-btn" onclick="showPodium(this)">🏆 سکوی قهرمانی</button>
     </div>
 
-    <!-- کانتینر پروژه‌ها -->
     <div id="projects" class="projects-grid"></div>
-
-    <!-- کانتینر سکوی قهرمانی -->
     <div id="podium-container" style="display: none;">
       <h2 style="text-align: center; color: #fbbf24; font-size: 2rem; margin-bottom: 20px; text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);">🏆 ۳ پروژه برتر نمایشگاه</h2>
       <div class="podium-wrapper" id="podium-grid"></div>
     </div>
+
+    <!-- فوتر کامل در پایین صفحه -->
+    <footer class="developer-footer">
+      <div class="dev-card">
+        <div class="dev-image-wrapper">
+          <img src="developer.jpg" alt="پوریا جهانشاهی - طراح و کدنویس" class="dev-image" onerror="this.src='logo.png'">
+        </div>
+        <div class="dev-info">
+          <h3>👨‍💻 طراحی و توسعه سیستم</h3>
+          <p>این سامانه با تلاش و کدنویسی اختصاصی <strong>پوریا جهانشاهی</strong> برای نمایشگاه رباتیک آموزشگاه ره‌نشان طراحی و پیاده‌سازی شده است.</p>
+          <p style="margin-top: 10px; font-size: 0.85rem; color: #8b5cf6;">با همکاری و حمایت مدیریت محترم آموزشگاه، جناب آقای سالاری</p>
+        </div>
+      </div>
+    </footer>
   </div>
 
-  <!-- مودال امتیازدهی -->
   <div id="project-modal" class="modal-overlay">
     <div class="modal-content">
       <button class="close-modal" onclick="closeModal()">&times;</button>
       <h2 id="modal-title"></h2>
       <div id="modal-video-container"></div>
       <p id="modal-desc"></p>
-      
       <div id="rating-section" class="rating-section">
         <h3>امتیاز خود را انتخاب کنید (۱ تا ۱۰)</h3>
         <div class="rating-buttons">
@@ -105,14 +101,10 @@
         </div>
         <button id="submit-rating-btn" class="btn-primary" onclick="submitRating()" disabled>ثبت امتیاز</button>
       </div>
-
-      <div id="already-rated-msg" style="display: none;">
-        شما قبلاً به این پروژه امتیاز داده‌اید. ممنون! ✅
-      </div>
+      <div id="already-rated-msg" style="display: none;">شما قبلاً به این پروژه امتیاز داده‌اید. ممنون! ✅</div>
     </div>
   </div>
 
-  <!-- پاپ‌آپ تشکر -->
   <div id="thank-you-modal" class="thank-you-overlay">
     <div class="thank-you-content">
       <div class="star-icon">🌟</div>
