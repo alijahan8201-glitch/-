@@ -100,55 +100,23 @@ function filterProjects(category, btnElement = null) {
   const container = document.getElementById('projects');
 
   if (!filtered || filtered.length === 0) {
-    container.innerHTML = '<div style="text-align:center; grid-column:1/-1; color:#cbd5e1; font-size:1.2rem; padding:50px;">هیچ پروژه‌ای در این دسته وجود ندارد.</div>';
+    container.innerHTML = '<div style="text-align:center; grid-column:1/-1; color:#cbd5e1;">هیچ پروژه‌ای در این دسته وجود ندارد.</div>';
     return;
   }
 
-  container.innerHTML = filtered.map((p, index) => {
+  container.innerHTML = filtered.map((p) => {
     const imgSrc = p.image_url ? p.image_url : null;
     return `
-      <div class="project-card" style="animation-delay: ${index * 0.1}s" onclick="openModal(${p.id})">
-        <div class="project-content">
-          ${imgSrc ? `<img src="${imgSrc}" class="project-image" onerror="this.style.display='none';">` : `<div class="project-image" style="font-size:5rem; display:flex; align-items:center; justify-content:center;">🤖</div>`}
-          <div class="project-body">
-            <h3 class="project-title">${escapeHtml(p.title)}</h3>
-            <div class="project-team">👥 ${escapeHtml(p.team_name || 'تیم ناشناس')}</div>
-            <div class="project-score">⭐ امتیاز: ${p.avg_score} از ۱۰ (${p.vote_count} رأی)</div>
-          </div>
+      <div class="project-card" onclick="openModal(${p.id})">
+        ${imgSrc ? `<img src="${imgSrc}" class="project-image" onerror="this.style.display='none';">` : `<div class="project-image" style="font-size:4rem; display:flex; align-items:center; justify-content:center;">🤖</div>`}
+        <div class="project-body">
+          <h3 class="project-title">${escapeHtml(p.title)}</h3>
+          <div class="project-team">👥 ${escapeHtml(p.team_name || 'تیم ناشناس')}</div>
+          <div class="project-score">⭐ امتیاز: ${p.avg_score} از ۱۰ (${p.vote_count} رأی)</div>
         </div>
       </div>
     `;
   }).join('');
-
-  // ===== فعال کردن افکت 3D و نورپردازی =====
-  document.querySelectorAll('.project-card').forEach(card => {
-    card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      
-      const rotateX = ((y - centerY) / centerY) * -8;
-      const rotateY = ((x - centerX) / centerX) * 8;
-      
-      // خاموش کردن Transition موقع حرکت برای اینکه کارت دقیقا دنبال موس بیاد (بدون تاخیر)
-      card.style.transition = 'none';
-      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-      
-      card.style.setProperty('--mouse-x', `${x}px`);
-      card.style.setProperty('--mouse-y', `${y}px`);
-    });
-
-    card.addEventListener('mouseleave', () => {
-      // روشن کردن Transition موقع خروج برای برگشت نرم و اصولی به حالت اول
-      card.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease';
-      card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
-      
-      card.style.setProperty('--mouse-x', `-1000px`);
-      card.style.setProperty('--mouse-y', `-1000px`);
-    });
-  });
 }
 
 function openModal(projectId) {
