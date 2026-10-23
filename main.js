@@ -82,20 +82,21 @@ function renderProjects(projects) {
   filterProjects('all'); 
 }
 
+// ==================== فیلترهای اصلی صفحه ====================
 function filterProjects(category, btnElement = null) {
   document.getElementById('projects').style.display = 'grid';
-  document.getElementById('podium-container').style.display = 'none';
+  document.getElementById('leaderboard-container').style.display = 'none';
 
   if (btnElement) {
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.filter-tabs > .filter-btn').forEach(btn => btn.classList.remove('active'));
     btnElement.classList.add('active');
   }
 
   let filtered = allProjects;
   if (category === 'creator') {
-    filtered = allProjects.filter(p => p.is_creator == 1); // فیلتر بر اساس سازنده بودن
+    filtered = allProjects.filter(p => p.is_creator == 1); 
   } else if (category !== 'all') {
-    filtered = allProjects.filter(p => p.category === category); // فیلتر بر اساس دسته (ربات/بازی)
+    filtered = allProjects.filter(p => p.category === category); 
   }
 
   const container = document.getElementById('projects');
@@ -124,26 +125,66 @@ function filterProjects(category, btnElement = null) {
   }).join('');
 }
 
-function showPodium(btnElement) {
-  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-  btnElement.classList.add('active');
+// ==================== منطق جدول رده‌بندی ====================
+function showLeaderboard(category, btnElement) {
   document.getElementById('projects').style.display = 'none';
-  document.getElementById('podium-container').style.display = 'block';
+  document.getElementById('leaderboard-container').style.display = 'block';
   
-  const top3 = allProjects.slice(0, 3); 
-  const grid = document.getElementById('podium-grid');
-  if (top3.length < 3) {
-    grid.innerHTML = '<div style="color:#cbd5e1; text-align:center; width:100%;">هنوز به اندازه کافی پروژه برای سکو وجود ندارد.</div>';
-    return;
-  }
+  // تنظیم حالت اولیه دکمه‌های تب اصلی
+  document.querySelectorAll('.filter-tabs > .filter-btn').forEach(btn => btn.classList.remove('active'));
+  btnElement.classList.add('active');
 
-  grid.innerHTML = `
-    <div class="podium-card second"><div class="podium-medal">🥈</div><div class="podium-title">${top3[1].title}</div><div class="podium-team">${top3[1].team_name || 'تیم ناشناس'}</div><div class="podium-score">${top3[1].avg_score} <span style="font-size:1rem; color:#cbd5e1;">از ۱۰</span></div></div>
-    <div class="podium-card first"><div class="podium-medal">🥇</div><div class="podium-title">${top3[0].title}</div><div class="podium-team">${top3[0].team_name || 'تیم ناشناس'}</div><div class="podium-score" style="font-size: 2rem;">${top3[0].avg_score} <span style="font-size:1rem; color:#cbd5e1;">از ۱۰</span></div></div>
-    <div class="podium-card third"><div class="podium-medal">🥉</div><div class="podium-title">${top3[2].title}</div><div class="podium-team">${top3[2].team_name || 'تیم ناشناس'}</div><div class="podium-score">${top3[2].avg_score} <span style="font-size:1rem; color:#cbd5e1;">از ۱۰</span></div></div>
-  `;
+  // رفرش کردن جدول با دسته‌بندی پیش‌فرض (ربات)
+  document.getElementById('btn-lb-robot').classList.add('active');
+  document.getElementById('btn-lb-game').classList.remove('active');
+  loadLeaderboard('robot', document.getElementById('btn-lb-robot'));
 }
 
+function loadLeaderboard(category, btnElement) {
+  // تغییر حالت دکمه‌های داخلی جدول
+  document.querySelectorAll('#leaderboard-container .filter-btn').forEach(btn => btn.classList.remove('active'));
+  btnElement.classList.add('active');
+
+  // فیلتر و مرتب‌سازی پروژه‌ها
+  let filtered = allProjects.filter(p => p.category === category);
+  filtered.sort((a, b) => parseFloat(b.avg_score) - parseFloat(a.avg_score));
+
+  const top3 = filtered.slice(0, 3);
+  const rest = filtered.slice(3);
+  
+  // --- آپدیت سکوی قهرمانی ---
+  const grid = document.getElementById('podium-grid');
+  if (top3.length === 0) {
+    grid.innerHTML = '<div style="color:#cbd5e1; text-align:center; width:100%;">هنوز پروژه‌ای در این دسته ثبت نشده است.</div>';
+  } else {
+    grid.innerHTML = `
+      ${top3[1] ? `<div class="podium-card second"><div class="podium-medal">🥈</div><div class="podium-title">${top3[1].title}</div><div class="podium-team">${top3[1].team_name || 'تیم ناشناس'}</div><div class="podium-score">${top3[1].avg_score} <span style="font-size:1rem; color:#cbd5e1;">از ۱۰</span></div></div>` : ''}
+      ${top3[0] ? `<div class="podium-card first"><div class="podium-medal">🥇</div><div class="podium-title">${top3[0].title}</div><div class="podium-team">${top3[0].team_name || 'تیم ناشناس'}</div><div class="podium-score" style="font-size: 2rem;">${top3[0].avg_score} <span style="font-size:1rem; color:#cbd5e1;">از ۱۰</span></div></div>` : ''}
+      ${top3[2] ? `<div class="podium-card third"><div class="podium-medal">🥉</div><div class="podium-title">${top3[2].title}</div><div class="podium-team">${top3[2].team_name || 'تیم ناشناس'}</div><div class="podium-score">${top3[2].avg_score} <span style="font-size:1rem; color:#cbd5e1;">از ۱۰</span></div></div>` : ''}
+    `;
+  }
+
+  // --- آپدیت جدول بقیه رتبه‌ها ---
+  const tbody = document.getElementById('leaderboard-body-main');
+  if (rest.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 30px;">پروژه دیگری در این دسته وجود ندارد.</td></tr>';
+  } else {
+    tbody.innerHTML = rest.map((p, index) => {
+      const rank = index + 4; // چون از رتبه ۴ شروع میشه
+      return `
+        <tr>
+          <td style="font-weight: bold; font-size: 1.1rem;">${rank}</td>
+          <td style="color:#fff; font-weight: bold;">${escapeHtml(p.title)}</td>
+          <td style="color:#a78bfa;">${escapeHtml(p.team_name || '-')}</td>
+          <td style="color:#fbbf24; font-weight: bold; font-size: 1.1rem;">${p.avg_score}</td>
+          <td>${p.vote_count} نفر</td>
+        </tr>
+      `;
+    }).join('');
+  }
+}
+
+// ==================== مودال و بقیه موارد ====================
 function openModal(projectId) {
   currentProjectId = projectId;
   const project = allProjects.find(p => p.id === projectId);
