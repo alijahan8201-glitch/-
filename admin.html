@@ -15,7 +15,6 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
     
-    /* فرم دو ستونه */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
     .form-grid .full-width { grid-column: 1 / -1; }
     .form-group label { color: #cbd5e1; font-weight: 600; margin-bottom: 8px; display: block; font-size: 0.95rem; }
@@ -37,17 +36,12 @@
     .print-btn { background: #10b981; color: white; padding: 12px 25px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 15px; font-family: inherit; transition: 0.3s; }
     #qrcode { display: flex; justify-content: center; margin: 25px 0; background: white; padding: 25px; border-radius: 20px; width: fit-content; margin-left: auto; margin-right: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
-    @media (max-width: 768px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .admin-container { padding: 20px; }
-    }
+    @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .admin-container { padding: 20px; } }
   </style>
 </head>
 <body>
   <div class="admin-container">
-    <div class="admin-header">
-      <h1>🔧 پنل مدیریت مسابقه</h1>
-    </div>
+    <div class="admin-header"><h1>🔧 پنل مدیریت مسابقه</h1></div>
 
     <div class="tabs">
       <button class="tab-btn active" onclick="openTab('tab-add')">➕ افزودن پروژه</button>
@@ -56,7 +50,6 @@
       <button class="tab-btn" onclick="openTab('tab-draw')">🎁 قرعه‌کشی</button>
     </div>
 
-    <!-- تب افزودن -->
     <div id="tab-add" class="tab-content active">
       <form id="add-form">
         <div class="form-grid">
@@ -73,11 +66,17 @@
             <input type="text" id="team" class="form-input" placeholder="مثلاً: تیم آتش">
           </div>
           <div class="form-group">
-            <label>دسته بندی</label>
+            <label>دسته بندی اصلی</label>
             <select id="category" class="form-input" style="background: #1e293b;">
               <option value="robot">🤖 ربات</option>
               <option value="game">🎮 بازی</option>
-              <option value="creator">👨‍💻 پروژه سازنده سایت</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label>آیا این پروژه متعلق به سازنده سایت است؟ (نمایش تاج طلایی)</label>
+            <select id="is_creator" class="form-input" style="background: #1e293b; color: #fbbf24; font-weight: bold;">
+              <option value="0">خیر (پروژه عادی)</option>
+              <option value="1">بله (پروژه سازنده سایت 👑)</option>
             </select>
           </div>
           <div class="form-group full-width">
@@ -106,7 +105,6 @@
       </div>
     </div>
 
-    <!-- تب رده‌بندی -->
     <div id="tab-leaderboard" class="tab-content">
       <h3 style="margin-bottom: 20px; color: #fff; font-size: 1.3rem;">🏆 رتبه‌بندی پروژه‌ها</h3>
       <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
@@ -117,7 +115,6 @@
       </div>
     </div>
 
-    <!-- تب شرکت‌کننده‌ها -->
     <div id="tab-participants" class="tab-content">
       <h3 style="margin-bottom: 20px; color: #fff; font-size: 1.3rem;">لیست شرکت‌کننده‌ها</h3>
       <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
@@ -128,7 +125,6 @@
       </div>
     </div>
 
-    <!-- تب قرعه‌کشی -->
     <div id="tab-draw" class="tab-content">
       <div class="draw-box">
         <h3 style="color: #fff; font-size: 1.6rem; text-shadow: 0 0 15px rgba(255,255,255,0.3);">قرعه‌کشی ویژه</h3>
@@ -144,7 +140,6 @@
     </div>
   </div>
 
-  <!-- مودال QR -->
   <div id="qr-modal" class="custom-modal">
     <div class="modal-box text-center">
       <h2 id="qr-title" style="color: #60a5fa; margin-bottom: 15px; font-size: 1.5rem;"></h2>
@@ -156,7 +151,6 @@
     </div>
   </div>
 
-  <!-- مودال ویرایش -->
   <div id="edit-modal" class="custom-modal">
     <div class="modal-box">
       <h2 style="color: #60a5fa; margin-bottom: 25px; text-align: center; font-size: 1.5rem;">✏️ ویرایش پروژه</h2>
@@ -167,11 +161,17 @@
           <div class="form-group"><label>عنوان پروژه</label><input type="text" id="edit-title" class="form-input" required></div>
           <div class="form-group"><label>نام تیم</label><input type="text" id="edit-team" class="form-input"></div>
           <div class="form-group">
-            <label>دسته بندی</label>
+            <label>دسته بندی اصلی</label>
             <select id="edit-category" class="form-input" style="background: #1e293b;">
               <option value="robot">🤖 ربات</option>
               <option value="game">🎮 بازی</option>
-              <option value="creator">👨‍💻 پروژه سازنده سایت</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label>آیا این پروژه متعلق به سازنده سایت است؟</label>
+            <select id="edit-is_creator" class="form-input" style="background: #1e293b; color: #fbbf24; font-weight: bold;">
+              <option value="0">خیر</option>
+              <option value="1">بله (نمایش تاج طلایی)</option>
             </select>
           </div>
           <div class="form-group full-width"><label>توضیحات</label><textarea id="edit-description" class="form-input" required style="height: 100px; resize:none;"></textarea></div>
