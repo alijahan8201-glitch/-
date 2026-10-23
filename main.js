@@ -106,7 +106,6 @@ function filterProjects(category, btnElement = null) {
 
   container.innerHTML = filtered.map((p, index) => {
     const imgSrc = p.image_url ? p.image_url : null;
-    // اضافه کردن تاخیر برای انیمیشن ورود
     return `
       <div class="project-card" style="animation-delay: ${index * 0.1}s" onclick="openModal(${p.id})">
         <div class="project-content">
@@ -121,7 +120,7 @@ function filterProjects(category, btnElement = null) {
     `;
   }).join('');
 
-  // فعال کردن افکت 3D و نورپردازی
+  // ===== فعال کردن افکت 3D و نورپردازی =====
   document.querySelectorAll('.project-card').forEach(card => {
     card.addEventListener('mousemove', e => {
       const rect = card.getBoundingClientRect();
@@ -130,19 +129,24 @@ function filterProjects(category, btnElement = null) {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
       
-      // چرخش سه بعدی
-      const rotateX = ((y - centerY) / centerY) * -8; // حداکثر 8 درجه
+      const rotateX = ((y - centerY) / centerY) * -8;
       const rotateY = ((x - centerX) / centerX) * 8;
       
+      // خاموش کردن Transition موقع حرکت برای اینکه کارت دقیقا دنبال موس بیاد (بدون تاخیر)
+      card.style.transition = 'none';
       card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
       
-      // جابجایی نور
       card.style.setProperty('--mouse-x', `${x}px`);
       card.style.setProperty('--mouse-y', `${y}px`);
     });
 
     card.addEventListener('mouseleave', () => {
+      // روشن کردن Transition موقع خروج برای برگشت نرم و اصولی به حالت اول
+      card.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease';
       card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+      
+      card.style.setProperty('--mouse-x', `-1000px`);
+      card.style.setProperty('--mouse-y', `-1000px`);
     });
   });
 }
