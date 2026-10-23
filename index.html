@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>نمایشگاه رباتیک و هوش مصنوعی</title>
   <link rel="stylesheet" href="style.css">
-  <!-- کتابخانه افکت کانفتی -->
+  <!-- کتابخانه افکت کانفتی (بارش کاغذرنگی) -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
@@ -49,31 +49,35 @@
       <p>برای مشاهده جزئیات و امتیازدهی، روی هر کارت کلیک کنید</p>
     </header>
     
+    <!-- تب‌های فیلتر و سکوی قهرمانی -->
     <div class="filter-tabs">
       <button class="filter-btn active" onclick="filterProjects('all', this)">نمایش همه</button>
       <button class="filter-btn" onclick="filterProjects('robot', this)">🤖 ربات‌ها</button>
       <button class="filter-btn" onclick="filterProjects('game', this)">🎮 بازی‌ها</button>
-      <button class="filter-btn" onclick="showPodium(this)" style="background: linear-gradient(135deg, #f59e0b, #d97706); border-color: transparent; color: white;">🏆 سکوی قهرمانی</button>
+      <button class="filter-btn podium-btn" onclick="showPodium(this)">🏆 سکوی قهرمانی</button>
     </div>
 
     <!-- کانتینر اصلی پروژه‌ها -->
     <div id="projects" class="projects-grid"></div>
 
-    <!-- کانتینر سکوی قهرمانی -->
+    <!-- کانتینر سکوی قهرمانی (در ابتدا مخفی است) -->
     <div id="podium-container" style="display: none;">
-      <h2 style="text-align: center; color: #fbbf24; font-size: 2rem; margin-bottom: 40px; text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);">🏆 ۳ پروژه برتر نمایشگاه</h2>
+      <h2 style="text-align: center; color: #fbbf24; font-size: 2rem; margin-bottom: 20px; text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);">🏆 ۳ پروژه برتر نمایشگاه</h2>
       <div class="podium-wrapper" id="podium-grid">
         <!-- توسط جاوااسکریپت پر میشه -->
       </div>
     </div>
 
-    <!-- بخش توسعه‌دهنده -->
+    <!-- بخش توسعه‌دهنده (عکس پوریا جهانشاهی و مدیر) -->
     <footer class="developer-footer">
       <div class="dev-card">
-        <img src="developer.jpg" alt="توسعه‌دهنده" class="dev-image" onerror="this.src='logo.png'">
+        <div class="dev-image-wrapper">
+          <img src="developer.jpg" alt="پوریا جهانشاهی - طراح و کدنویس" class="dev-image" onerror="this.src='logo.png'">
+        </div>
         <div class="dev-info">
-          <h3>طراحی و توسعه سیستم</h3>
-          <p>این سامانه با تلاش و کدنویسی اختصاصی برای نمایشگاه رباتیک آموزشگاه ره‌نشان طراحی شده است.</p>
+          <h3>👨‍💻 طراحی و توسعه سیستم</h3>
+          <p>این سامانه با تلاش و کدنویسی اختصاصی <strong>پوریا جهانشاهی</strong> برای نمایشگاه رباتیک آموزشگاه ره‌نشان طراحی و پیاده‌سازی شده است.</p>
+          <p style="margin-top: 10px; font-size: 0.85rem; color: #8b5cf6;">با همکاری و حمایت مدیریت محترم آموزشگاه، جناب آقای سالاری</p>
         </div>
       </div>
     </footer>
@@ -110,7 +114,7 @@
     </div>
   </div>
 
-  <!-- پاپ‌آپ تشکر و اینستاگرام -->
+  <!-- پاپ‌آپ تشکر و اینستاگرام (مخصوص اولین رأی) -->
   <div id="thank-you-modal" class="thank-you-overlay">
     <div class="thank-you-content">
       <div class="star-icon">🌟</div>
