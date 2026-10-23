@@ -32,6 +32,7 @@ document.getElementById('add-form').addEventListener('submit', async (e) => {
   formData.append('description', document.getElementById('description').value.trim());
   formData.append('image_url_text', document.getElementById('image_url_text').value.trim());
   formData.append('video_url', document.getElementById('video_url').value.trim());
+  formData.append('category', document.getElementById('category').value);
   
   const imageFile = document.getElementById('image_file').files[0];
   if (imageFile) formData.append('image', imageFile);
@@ -106,6 +107,7 @@ function openEditModal(projectId) {
   document.getElementById('edit-video').value = project.video_url || '';
   document.getElementById('edit-image-text').value = project.image_url || '';
   document.getElementById('edit-image-file').value = ''; 
+  document.getElementById('edit-category').value = project.category || 'robot';
   if (savedPassword) document.getElementById('edit-password').value = savedPassword;
   document.getElementById('edit-modal').style.display = 'flex';
 }
@@ -124,6 +126,7 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
   formData.append('description', document.getElementById('edit-description').value.trim());
   formData.append('image_url_text', document.getElementById('edit-image-text').value.trim());
   formData.append('video_url', document.getElementById('edit-video').value.trim());
+  formData.append('category', document.getElementById('edit-category').value);
   
   const imageFile = document.getElementById('edit-image-file').files[0];
   if (imageFile) formData.append('image', imageFile);
