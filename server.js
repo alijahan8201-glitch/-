@@ -10,18 +10,16 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// ذخیره موقت فایل برای آپلود به Imgbb
 const upload = multer({ dest: 'uploads/' }); 
 
-// اتصال به دیتابیس Turso
 const db = createClient({
   url: process.env.TURSO_DATABASE_URL,
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-// ساخت جدول‌ها
 async function initDB() {
     try {
+        // 1. ساخت جدول‌ها
         await db.execute(`CREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT, description TEXT, team_name TEXT,
@@ -35,26 +33,35 @@ async function initDB() {
             score INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(project_id, voter_id)
         )`);
-        console.log("✅ Tables are ready.");
+
+        // 2. اضافه کردن ستون دسته‌بندی در صورت وجود نداشتن
+        try {
+            await db.execute("ALTER TABLE projects ADD COLUMN category TEXT DEFAULT 'robot'");
+            console.log("✅ Category column added.");
+            
+            // 3. انتقال خودکار پروژه‌های قبلی به دسته بازی‌ها (اگر کلمه بازی در اسمشون بود)
+            await db.execute("UPDATE projects SET category = 'game' WHERE title LIKE '%بازی%' OR title LIKE '%سرگرمی%'");
+            console.log("✅ Old projects categorized.");
+        } catch (e) {
+            // اگر ستون از قبل وجود داشت، ارور می‌ده که نادیده می‌گیریم
+        }
+
+        console.log("✅ DB is ready.");
     } catch (err) { console.error("DB Error:", err); }
 }
 initDB();
 
-// تابع آپلود عکس به Imgbb
 async function uploadToImgbb(filePath) {
     try {
         const imageBuffer = fs.readFileSync(filePath);
         const base64Image = imageBuffer.toString('base64');
-        
         const formData = new FormData();
         formData.append('key', process.env.IMGBB_API_KEY);
         formData.append('image', base64Image);
         
         const response = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
         const data = await response.json();
-        
-        fs.unlinkSync(filePath); // پاک کردن فایل موقت
-        
+        fs.unlinkSync(filePath); 
         if (data.success) return data.data.url;
         throw new Error('Imgbb upload failed');
     } catch (err) {
@@ -63,7 +70,6 @@ async function uploadToImgbb(filePath) {
     }
 }
 
-// دریافت لیست پروژه‌ها
 app.get('/api/projects', async (req, res) => {
     try {
         const result = await db.execute(`SELECT *, (CASE WHEN vote_count = 0 THEN 0 ELSE ROUND(CAST(total_score AS REAL) / vote_count, 1) END) AS avg_score FROM projects ORDER BY avg_score DESC, vote_count DESC`);
@@ -71,7 +77,6 @@ app.get('/api/projects', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ثبت امتیاز
 app.post('/api/rate', async (req, res) => {
     const { project_id, voter_id, first_name, last_name, phone_number, score } = req.body;
     if (!/^09\d{9}$/.test(phone_number)) return res.status(400).json({ success: false, message: "شماره نامعتبر است" });
@@ -86,9 +91,8 @@ app.post('/api/rate', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// افزودن پروژه (با فایل یا لینک)
 app.post('/api/admin/add', upload.single('image'), async (req, res) => {
-    const { password, title, description, team_name, video_url, image_url_text } = req.body;
+    const { password, title, description, team_name, video_url, image_url_text, category } = req.body;
     if (password !== '123456') return res.json({ success: false, message: "رمز اشتباه است" });
 
     let final_image_url = image_url_text || ''; 
@@ -97,14 +101,16 @@ app.post('/api/admin/add', upload.single('image'), async (req, res) => {
     }
 
     try {
-        await db.execute({ sql: "INSERT INTO projects (title, description, team_name, image_url, video_url) VALUES (?, ?, ?, ?, ?)", args: [title, description, team_name, final_image_url, video_url] });
+        await db.execute({ 
+            sql: "INSERT INTO projects (title, description, team_name, image_url, video_url, category) VALUES (?, ?, ?, ?, ?, ?)", 
+            args: [title, description, team_name, final_image_url, video_url, category || 'robot'] 
+        });
         res.json({ success: true, message: "پروژه اضافه شد" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ویرایش پروژه
 app.put('/api/admin/edit/:id', upload.single('image'), async (req, res) => {
-    const { password, title, description, team_name, video_url, image_url_text } = req.body;
+    const { password, title, description, team_name, video_url, image_url_text, category } = req.body;
     if (password !== '123456') return res.json({ success: false, message: "رمز اشتباه است" });
 
     const id = req.params.id;
@@ -116,12 +122,14 @@ app.put('/api/admin/edit/:id', upload.single('image'), async (req, res) => {
             try { final_image_url = await uploadToImgbb(req.file.path); } catch (e) { return res.json({ success: false, message: "خطا در آپلود عکس" }); }
         }
 
-        await db.execute({ sql: "UPDATE projects SET title = ?, description = ?, team_name = ?, image_url = ?, video_url = ? WHERE id = ?", args: [title, description, team_name, final_image_url, video_url, id] });
+        await db.execute({ 
+            sql: "UPDATE projects SET title = ?, description = ?, team_name = ?, image_url = ?, video_url = ?, category = ? WHERE id = ?", 
+            args: [title, description, team_name, final_image_url, video_url, category || 'robot', id] 
+        });
         res.json({ success: true, message: "پروژه ویرایش شد" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// حذف پروژه
 app.delete('/api/admin/delete/:id', async (req, res) => {
     const { password } = req.body;
     if (password !== '123456') return res.json({ success: false, message: "رمز اشتباه است" });
@@ -132,7 +140,6 @@ app.delete('/api/admin/delete/:id', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// دریافت شرکت‌کننده‌ها
 app.get('/api/admin/participants', async (req, res) => {
     try {
         const result = await db.execute(`SELECT v.first_name, v.last_name, v.phone_number, v.score, p.title as project_title, v.created_at FROM votes v JOIN projects p ON v.project_id = p.id ORDER BY v.created_at DESC`);
@@ -140,7 +147,6 @@ app.get('/api/admin/participants', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// قرعه‌کشی
 app.get('/api/admin/draw', async (req, res) => {
     try {
         const result = await db.execute("SELECT first_name, last_name, phone_number FROM votes");
