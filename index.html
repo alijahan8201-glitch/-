@@ -39,7 +39,7 @@
       <p>برای مشاهده جزئیات و امتیازدهی، روی هر کارت کلیک کنید</p>
     </header>
 
-    <!-- بنر بالای صفحه (سازنده) -->
+    <!-- بنر سازنده -->
     <div class="dev-banner">
       <div class="dev-banner-img-wrapper">
         <img src="developer.jpg" alt="طراح و سازنده سایت" class="dev-banner-img" onerror="this.src='logo.png'">
@@ -51,20 +51,40 @@
       </div>
     </div>
 
+    <!-- تب‌های اصلی -->
     <div class="filter-tabs">
       <button class="filter-btn active" onclick="filterProjects('all', this)">نمایش همه</button>
       <button class="filter-btn" onclick="filterProjects('robot', this)">🤖 ربات‌ها</button>
       <button class="filter-btn" onclick="filterProjects('game', this)">🎮 بازی‌ها</button>
-      <button class="filter-btn podium-btn" onclick="showPodium(this)">🏆 سکوی قهرمانی</button>
+      <button class="filter-btn leaderboard-btn" onclick="showLeaderboard('robot', this)">🏆 جدول رده‌بندی</button>
     </div>
 
+    <!-- کانتینر پروژه‌ها -->
     <div id="projects" class="projects-grid"></div>
-    <div id="podium-container" style="display: none;">
-      <h2 style="text-align: center; color: #fbbf24; font-size: 2rem; margin-bottom: 20px; text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);">🏆 ۳ پروژه برتر نمایشگاه</h2>
+
+    <!-- کانتینر جدول رده‌بندی (در ابتدا مخفی) -->
+    <div id="leaderboard-container" style="display: none;">
+      <h2 style="text-align: center; color: #fbbf24; font-size: 2rem; margin-bottom: 20px; text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);">🏆 جدول رده‌بندی</h2>
+      
+      <!-- تب‌های داخلی جدول رده‌بندی -->
+      <div class="filter-tabs" style="margin-bottom: 40px;">
+        <button class="filter-btn active" id="btn-lb-robot" onclick="loadLeaderboard('robot', this)">🤖 ربات‌ها</button>
+        <button class="filter-btn" id="btn-lb-game" onclick="loadLeaderboard('game', this)">🎮 بازی‌ها</button>
+      </div>
+
+      <!-- سکوی 3 نفر اول -->
       <div class="podium-wrapper" id="podium-grid"></div>
+
+      <!-- جدول بقیه رتبه‌ها -->
+      <div class="leaderboard-table-wrapper" style="margin-top: 50px;">
+        <table class="participant-table">
+          <thead><tr><th>رتبه</th><th>پروژه</th><th>تیم</th><th>میانگین امتیاز</th><th>تعداد رأی</th></tr></thead>
+          <tbody id="leaderboard-body-main"></tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- فوتر کامل در پایین صفحه -->
+    <!-- فوتر -->
     <footer class="developer-footer">
       <div class="dev-card">
         <div class="dev-image-wrapper">
