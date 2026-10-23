@@ -19,7 +19,6 @@ const db = createClient({
 
 async function initDB() {
     try {
-        // 1. ساخت جدول‌ها
         await db.execute(`CREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT, description TEXT, team_name TEXT,
@@ -34,19 +33,10 @@ async function initDB() {
             UNIQUE(project_id, voter_id)
         )`);
 
-        // 2. اضافه کردن ستون دسته‌بندی در صورت وجود نداشتن
         try {
             await db.execute("ALTER TABLE projects ADD COLUMN category TEXT DEFAULT 'robot'");
-            console.log("✅ Category column added.");
-            
-            // 3. انتقال خودکار پروژه‌های قبلی به دسته بازی‌ها (اگر کلمه بازی در اسمشون بود)
             await db.execute("UPDATE projects SET category = 'game' WHERE title LIKE '%بازی%' OR title LIKE '%سرگرمی%'");
-            console.log("✅ Old projects categorized.");
-        } catch (e) {
-            // اگر ستون از قبل وجود داشت، ارور می‌ده که نادیده می‌گیریم
-        }
-
-        console.log("✅ DB is ready.");
+        } catch (e) {}
     } catch (err) { console.error("DB Error:", err); }
 }
 initDB();
