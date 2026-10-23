@@ -83,7 +83,7 @@ let currentProjectId = null;
 
 function renderProjects(projects) {
   allProjects = projects;
-  filterProjects('all'); // در ابتدا همه رو نشون بده
+  filterProjects('all'); 
 }
 
 function filterProjects(category, btnElement = null) {
@@ -104,10 +104,11 @@ function filterProjects(category, btnElement = null) {
     return;
   }
 
-  container.innerHTML = filtered.map((p) => {
+  // اضافه کردن انیمیشن تاخیری به هر کارت
+  container.innerHTML = filtered.map((p, index) => {
     const imgSrc = p.image_url ? p.image_url : null;
     return `
-      <div class="project-card" onclick="openModal(${p.id})">
+      <div class="project-card" style="animation-delay: ${index * 0.1}s" onclick="openModal(${p.id})">
         ${imgSrc ? `<img src="${imgSrc}" class="project-image" onerror="this.style.display='none';">` : `<div class="project-image">🤖</div>`}
         <div class="project-body">
           <h3 class="project-title">${escapeHtml(p.title)}</h3>
