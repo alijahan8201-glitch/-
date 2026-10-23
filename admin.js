@@ -13,8 +13,13 @@ function openTab(tabId) {
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
   event.target.classList.add('active');
+  
   if (tabId === 'tab-participants') loadParticipants();
-  if (tabId === 'tab-leaderboard') loadLeaderboard();
+  if (tabId === 'tab-leaderboard') {
+    document.getElementById('btn-admin-lb-robot').classList.add('active');
+    document.getElementById('btn-admin-lb-game').classList.remove('active');
+    loadAdminLeaderboard('robot', document.getElementById('btn-admin-lb-robot'));
+  }
 }
 
 let savedPassword = sessionStorage.getItem('admin_password') || '';
@@ -33,7 +38,7 @@ document.getElementById('add-form').addEventListener('submit', async (e) => {
   formData.append('image_url_text', document.getElementById('image_url_text').value.trim());
   formData.append('video_url', document.getElementById('video_url').value.trim());
   formData.append('category', document.getElementById('category').value);
-  formData.append('is_creator', document.getElementById('is_creator').value); // ارسال وضعیت سازنده
+  formData.append('is_creator', document.getElementById('is_creator').value);
   
   const imageFile = document.getElementById('image_file').files[0];
   if (imageFile) formData.append('image', imageFile);
@@ -80,17 +85,39 @@ async function loadProjectsList() {
   } catch (e) { container.innerHTML = '<div style="color:#ef4444;">خطا در بارگذاری</div>'; }
 }
 
-async function loadLeaderboard() {
+// ==================== جدول رده‌بندی تفکیک‌شده (ادمین) ====================
+async function loadAdminLeaderboard(category, btnElement) {
+  document.querySelectorAll('#tab-leaderboard .filter-btn').forEach(btn => btn.classList.remove('active'));
+  if (btnElement) btnElement.classList.add('active');
+
   const tbody = document.getElementById('leaderboard-body');
   tbody.innerHTML = '<tr><td colspan="5">در حال بارگذاری...</td></tr>';
+  
   try {
     const response = await fetch(`${API_URL}/projects`);
     const data = await response.json(); 
-    if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="5">پروژه‌ای نیست</td></tr>'; return; }
-    tbody.innerHTML = data.map((p, index) => {
+    
+    // فیلتر بر اساس دسته‌بندی
+    let filtered = data.filter(p => p.category === category);
+    
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5">هیچ پروژه‌ای در بخش ${category === 'robot' ? 'ربات‌ها' : 'بازی‌ها'} وجود ندارد.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map((p, index) => {
       let medal = index + 1;
-      if (index === 0) medal = '🥇 ۱'; else if (index === 1) medal = '🥈 ۲'; else if (index === 2) medal = '🥉 ۳';
-      return `<tr style="${index < 3 ? 'background: rgba(245, 158, 11, 0.15);' : ''}"><td style="font-size: 1.3rem; font-weight: bold;">${medal}</td><td style="color:#fff; font-weight: bold; font-size:1.1rem;">${p.title}</td><td style="color:#a78bfa;">${p.team_name || '-'}</td><td style="color:#fbbf24; font-weight: bold; font-size: 1.2rem;">${p.avg_score}</td><td>${p.vote_count} نفر</td></tr>`;
+      if (index === 0) medal = '🥇 ۱'; 
+      else if (index === 1) medal = '🥈 ۲'; 
+      else if (index === 2) medal = '🥉 ۳';
+      
+      return `<tr style="${index < 3 ? 'background: rgba(245, 158, 11, 0.15);' : ''}">
+        <td style="font-size: 1.3rem; font-weight: bold;">${medal}</td>
+        <td style="color:#fff; font-weight: bold; font-size:1.1rem;">${p.title}</td>
+        <td style="color:#a78bfa;">${p.team_name || '-'}</td>
+        <td style="color:#fbbf24; font-weight: bold; font-size: 1.2rem;">${p.avg_score}</td>
+        <td>${p.vote_count} نفر</td>
+      </tr>`;
     }).join('');
   } catch (e) { tbody.innerHTML = '<tr><td colspan="5" style="color:red;">خطا</td></tr>'; }
 }
@@ -106,7 +133,7 @@ function openEditModal(projectId) {
   document.getElementById('edit-image-text').value = project.image_url || '';
   document.getElementById('edit-image-file').value = ''; 
   document.getElementById('edit-category').value = project.category || 'robot';
-  document.getElementById('edit-is_creator').value = project.is_creator || '0'; // ست کردن مقدار سازنده
+  document.getElementById('edit-is_creator').value = project.is_creator || '0';
   if (savedPassword) document.getElementById('edit-password').value = savedPassword;
   document.getElementById('edit-modal').style.display = 'flex';
 }
