@@ -83,14 +83,28 @@ let currentProjectId = null;
 
 function renderProjects(projects) {
   allProjects = projects;
+  filterProjects('all'); // در ابتدا همه رو نشون بده
+}
+
+function filterProjects(category, btnElement = null) {
+  if (btnElement) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    btnElement.classList.add('active');
+  }
+
+  let filtered = allProjects;
+  if (category !== 'all') {
+    filtered = allProjects.filter(p => p.category === category);
+  }
+
   const container = document.getElementById('projects');
 
-  if (!projects || projects.length === 0) {
-    container.innerHTML = '<div style="text-align:center; grid-column:1/-1; color:#cbd5e1;">هنوز پروژه‌ای اضافه نشده است.</div>';
+  if (!filtered || filtered.length === 0) {
+    container.innerHTML = '<div style="text-align:center; grid-column:1/-1; color:#cbd5e1;">هیچ پروژه‌ای در این دسته وجود ندارد.</div>';
     return;
   }
 
-  container.innerHTML = projects.map((p) => {
+  container.innerHTML = filtered.map((p) => {
     const imgSrc = p.image_url ? p.image_url : null;
     return `
       <div class="project-card" onclick="openModal(${p.id})">
