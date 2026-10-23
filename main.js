@@ -32,7 +32,6 @@ document.getElementById('start-btn').addEventListener('click', () => {
     showToast('لطفاً همه فیلدها را پر کنید', 'error');
     return;
   }
-
   const phoneRegex = /^09\d{9}$/;
   if (!phoneRegex.test(phone)) {
     showToast('شماره موبایل نامعتبر است! باید ۱۱ رقم و با ۰۹ شروع شود.', 'error');
@@ -41,7 +40,6 @@ document.getElementById('start-btn').addEventListener('click', () => {
 
   userInfo = { first_name: fname, last_name: lname, phone_number: phone };
   localStorage.setItem('user_info', JSON.stringify(userInfo));
-
   document.getElementById('info-screen').style.display = 'none';
   document.getElementById('main-screen').style.display = 'block';
   loadProjects();
@@ -64,9 +62,7 @@ function markAsVoted(projectId) {
 
 function getVideoHtml(url) {
   if (!url) return '';
-  if (url.includes('uploads/') || url.endsWith('.mp4')) {
-    return `<video src="${url}" controls style="width:100%; height:100%;"></video>`;
-  }
+  if (url.includes('uploads/') || url.endsWith('.mp4')) return `<video src="${url}" controls style="width:100%; height:100%;"></video>`;
   let embedUrl = url;
   if (url.includes('youtube.com/watch?v=')) embedUrl = url.replace('watch?v=', 'embed/');
   if (url.includes('youtu.be/')) embedUrl = url.replace('youtu.be/', 'youtube.com/embed/');
@@ -96,8 +92,10 @@ function filterProjects(category, btnElement = null) {
   }
 
   let filtered = allProjects;
-  if (category !== 'all') {
-    filtered = allProjects.filter(p => p.category === category);
+  if (category === 'creator') {
+    filtered = allProjects.filter(p => p.is_creator == 1); // فیلتر بر اساس سازنده بودن
+  } else if (category !== 'all') {
+    filtered = allProjects.filter(p => p.category === category); // فیلتر بر اساس دسته (ربات/بازی)
   }
 
   const container = document.getElementById('projects');
@@ -109,9 +107,8 @@ function filterProjects(category, btnElement = null) {
 
   container.innerHTML = filtered.map((p) => {
     const imgSrc = p.image_url ? p.image_url : null;
-    // اگر پروژه سازنده بود، یه ظاهر خاص (تاج و حاشیه طلایی) بهش میدیم
-    const isCreator = p.category === 'creator' ? 'creator-card' : '';
-    const crownIcon = p.category === 'creator' ? '<span class="crown-icon">👑</span>' : '';
+    const isCreator = p.is_creator == 1 ? 'creator-card' : '';
+    const crownIcon = p.is_creator == 1 ? '<span class="crown-icon">👑</span>' : '';
 
     return `
       <div class="project-card ${isCreator}" onclick="openModal(${p.id})">
@@ -130,38 +127,20 @@ function filterProjects(category, btnElement = null) {
 function showPodium(btnElement) {
   document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
   btnElement.classList.add('active');
-  
   document.getElementById('projects').style.display = 'none';
-  const podiumContainer = document.getElementById('podium-container');
-  podiumContainer.style.display = 'block';
+  document.getElementById('podium-container').style.display = 'block';
   
   const top3 = allProjects.slice(0, 3); 
   const grid = document.getElementById('podium-grid');
-  
   if (top3.length < 3) {
     grid.innerHTML = '<div style="color:#cbd5e1; text-align:center; width:100%;">هنوز به اندازه کافی پروژه برای سکو وجود ندارد.</div>';
     return;
   }
 
   grid.innerHTML = `
-    <div class="podium-card second">
-      <div class="podium-medal">🥈</div>
-      <div class="podium-title">${top3[1].title}</div>
-      <div class="podium-team">${top3[1].team_name || 'تیم ناشناس'}</div>
-      <div class="podium-score">${top3[1].avg_score} <span style="font-size:1rem; color:#cbd5e1;">از ۱۰</span></div>
-    </div>
-    <div class="podium-card first">
-      <div class="podium-medal">🥇</div>
-      <div class="podium-title">${top3[0].title}</div>
-      <div class="podium-team">${top3[0].team_name || 'تیم ناشناس'}</div>
-      <div class="podium-score" style="font-size: 2rem;">${top3[0].avg_score} <span style="font-size:1rem; color:#cbd5e1;">از ۱۰</span></div>
-    </div>
-    <div class="podium-card third">
-      <div class="podium-medal">🥉</div>
-      <div class="podium-title">${top3[2].title}</div>
-      <div class="podium-team">${top3[2].team_name || 'تیم ناشناس'}</div>
-      <div class="podium-score">${top3[2].avg_score} <span style="font-size:1rem; color:#cbd5e1;">از ۱۰</span></div>
-    </div>
+    <div class="podium-card second"><div class="podium-medal">🥈</div><div class="podium-title">${top3[1].title}</div><div class="podium-team">${top3[1].team_name || 'تیم ناشناس'}</div><div class="podium-score">${top3[1].avg_score} <span style="font-size:1rem; color:#cbd5e1;">از ۱۰</span></div></div>
+    <div class="podium-card first"><div class="podium-medal">🥇</div><div class="podium-title">${top3[0].title}</div><div class="podium-team">${top3[0].team_name || 'تیم ناشناس'}</div><div class="podium-score" style="font-size: 2rem;">${top3[0].avg_score} <span style="font-size:1rem; color:#cbd5e1;">از ۱۰</span></div></div>
+    <div class="podium-card third"><div class="podium-medal">🥉</div><div class="podium-title">${top3[2].title}</div><div class="podium-team">${top3[2].team_name || 'تیم ناشناس'}</div><div class="podium-score">${top3[2].avg_score} <span style="font-size:1rem; color:#cbd5e1;">از ۱۰</span></div></div>
   `;
 }
 
@@ -177,9 +156,7 @@ function openModal(projectId) {
   if (project.video_url) {
     videoContainer.innerHTML = getVideoHtml(project.video_url);
     videoContainer.style.display = 'block';
-  } else {
-    videoContainer.style.display = 'none';
-  }
+  } else { videoContainer.style.display = 'none'; }
 
   const voted = getVotedProjects();
   if (voted.includes(projectId)) {
@@ -192,7 +169,6 @@ function openModal(projectId) {
     document.getElementById('submit-rating-btn').disabled = true;
     document.querySelectorAll('.rate-btn').forEach(btn => btn.classList.remove('selected'));
   }
-
   document.getElementById('project-modal').style.display = 'flex';
 }
 
@@ -216,22 +192,13 @@ async function submitRating() {
   const btn = document.getElementById('submit-rating-btn');
   btn.disabled = true;
   btn.textContent = 'در حال ثبت...';
-
   try {
     const response = await fetch(`${API_URL}/rate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        project_id: currentProjectId, 
-        voter_id: VOTER_ID,
-        first_name: userInfo.first_name,
-        last_name: userInfo.last_name,
-        phone_number: userInfo.phone_number,
-        score: currentSelectedScore
-      })
+      body: JSON.stringify({ project_id: currentProjectId, voter_id: VOTER_ID, first_name: userInfo.first_name, last_name: userInfo.last_name, phone_number: userInfo.phone_number, score: currentSelectedScore })
     });
     const data = await response.json();
-
     if (data.success) {
       confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#8b5cf6', '#3b82f6', '#10b981', '#fbbf24'] });
       const votedList = getVotedProjects();
@@ -239,11 +206,8 @@ async function submitRating() {
       markAsVoted(currentProjectId);
       closeModal();
       loadProjects();
-      if (isFirstVote) {
-        setTimeout(() => { document.getElementById('thank-you-modal').style.display = 'flex'; }, 500);
-      } else {
-        showToast('امتیاز شما با موفقیت ثبت شد! ✅', 'success');
-      }
+      if (isFirstVote) { setTimeout(() => { document.getElementById('thank-you-modal').style.display = 'flex'; }, 500); } 
+      else { showToast('امتیاز شما با موفقیت ثبت شد! ✅', 'success'); }
     } else {
       showToast(data.message, 'error');
       btn.disabled = false;
@@ -256,25 +220,16 @@ async function submitRating() {
   }
 }
 
-function closeThankYouModal() {
-  document.getElementById('thank-you-modal').style.display = 'none';
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str || '';
-  return div.innerHTML;
-}
+function closeThankYouModal() { document.getElementById('thank-you-modal').style.display = 'none'; }
+function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str || ''; return div.innerHTML; }
 
 async function loadProjects() {
   try {
     const response = await fetch(`${API_URL}/projects`);
     const data = await response.json();
     renderProjects(data);
-
     const urlParams = new URLSearchParams(window.location.search);
     const projectIdFromUrl = urlParams.get('p');
-
     if (projectIdFromUrl) {
       if (!userInfo) {
         showToast('لطفاً برای رأی دادن، ابتدا ثبت‌نام کنید', 'info');
