@@ -105,8 +105,15 @@
       </div>
     </div>
 
+    <!-- تب رده‌بندی با فیلتر ربات و بازی -->
     <div id="tab-leaderboard" class="tab-content">
       <h3 style="margin-bottom: 20px; color: #fff; font-size: 1.3rem;">🏆 رتبه‌بندی پروژه‌ها</h3>
+      
+      <div class="filter-tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button class="filter-btn active" id="btn-admin-lb-robot" onclick="loadAdminLeaderboard('robot', this)">🤖 ربات‌ها</button>
+        <button class="filter-btn" id="btn-admin-lb-game" onclick="loadAdminLeaderboard('game', this)">🎮 بازی‌ها</button>
+      </div>
+
       <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
         <table class="participant-table" id="leaderboard-table">
           <thead><tr><th>رتبه</th><th>پروژه</th><th>تیم</th><th>میانگین</th><th>تعداد رأی</th></tr></thead>
