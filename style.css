@@ -137,3 +137,53 @@ body { background: #0f172a; color: #f8fafc; min-height: 100vh; position: relativ
   .dev-image { max-width: 100%; }
   .dev-info h3 { font-size: 1.2rem; }
 }
+
+/* ==================== استایل جدول رده‌بندی صفحه اصلی ==================== */
+.leaderboard-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  margin-bottom: 50px;
+}
+
+.leaderboard-table-wrapper .participant-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: white;
+}
+
+.leaderboard-table-wrapper .participant-table th,
+.leaderboard-table-wrapper .participant-table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 18px 15px;
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+.leaderboard-table-wrapper .participant-table th {
+  background: rgba(0, 0, 0, 0.3);
+  color: #a78bfa;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.leaderboard-table-wrapper .participant-table tr:last-child td {
+  border-bottom: none;
+}
+
+.leaderboard-table-wrapper .participant-table tbody tr:hover {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+/* دکمه طلایی برای جدول رده‌بندی در منوی اصلی */
+.leaderboard-btn {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: white !important;
+  border-color: transparent !important;
+}
+.leaderboard-btn:hover {
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+}
