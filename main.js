@@ -109,8 +109,13 @@ function filterProjects(category, btnElement = null) {
 
   container.innerHTML = filtered.map((p) => {
     const imgSrc = p.image_url ? p.image_url : null;
+    // اگر پروژه سازنده بود، یه ظاهر خاص (تاج و حاشیه طلایی) بهش میدیم
+    const isCreator = p.category === 'creator' ? 'creator-card' : '';
+    const crownIcon = p.category === 'creator' ? '<span class="crown-icon">👑</span>' : '';
+
     return `
-      <div class="project-card" onclick="openModal(${p.id})">
+      <div class="project-card ${isCreator}" onclick="openModal(${p.id})">
+        ${crownIcon}
         ${imgSrc ? `<img src="${imgSrc}" class="project-image" onerror="this.style.display='none';">` : `<div class="project-image" style="font-size:4rem; display:flex; align-items:center; justify-content:center;">🤖</div>`}
         <div class="project-body">
           <h3 class="project-title">${escapeHtml(p.title)}</h3>
@@ -122,7 +127,6 @@ function filterProjects(category, btnElement = null) {
   }).join('');
 }
 
-// ===== نمایش سکوی قهرمانی =====
 function showPodium(btnElement) {
   document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
   btnElement.classList.add('active');
@@ -131,7 +135,7 @@ function showPodium(btnElement) {
   const podiumContainer = document.getElementById('podium-container');
   podiumContainer.style.display = 'block';
   
-  const top3 = allProjects.slice(0, 3); // 3 پروژه اول رو بردار
+  const top3 = allProjects.slice(0, 3); 
   const grid = document.getElementById('podium-grid');
   
   if (top3.length < 3) {
@@ -139,7 +143,6 @@ function showPodium(btnElement) {
     return;
   }
 
-  // چیدمان سکو: نفر دوم، نفر اول، نفر سوم (از نظر بصری)
   grid.innerHTML = `
     <div class="podium-card second">
       <div class="podium-medal">🥈</div>
@@ -230,25 +233,14 @@ async function submitRating() {
     const data = await response.json();
 
     if (data.success) {
-      // 🎊 اجرای افکت کانفتی!
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#8b5cf6', '#3b82f6', '#10b981', '#fbbf24']
-      });
-
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#8b5cf6', '#3b82f6', '#10b981', '#fbbf24'] });
       const votedList = getVotedProjects();
       const isFirstVote = votedList.length === 0;
-
       markAsVoted(currentProjectId);
       closeModal();
       loadProjects();
-
       if (isFirstVote) {
-        setTimeout(() => {
-          document.getElementById('thank-you-modal').style.display = 'flex';
-        }, 500); // نیم ثانیه بعد از کانفتی، پاپ اپ بیاد
+        setTimeout(() => { document.getElementById('thank-you-modal').style.display = 'flex'; }, 500);
       } else {
         showToast('امتیاز شما با موفقیت ثبت شد! ✅', 'success');
       }
@@ -289,9 +281,7 @@ async function loadProjects() {
         document.getElementById('welcome-screen').style.display = 'none';
         document.getElementById('info-screen').style.display = 'block';
       } else {
-        setTimeout(() => {
-          openModal(parseInt(projectIdFromUrl));
-        }, 500);
+        setTimeout(() => { openModal(parseInt(projectIdFromUrl)); }, 500);
       }
     }
   } catch (e) {
