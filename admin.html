@@ -6,69 +6,110 @@
   <title>پنل مدیریت</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .tabs { display: flex; gap: 10px; margin-bottom: 30px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 16px; flex-wrap: wrap; }
-    .tab-btn { flex: 1; padding: 12px; background: transparent; color: #cbd5e1; border: none; border-radius: 12px; cursor: pointer; font-family: inherit; font-weight: bold; transition: 0.3s; font-size: 0.95rem; min-width: 120px; }
-    .tab-btn.active { background: linear-gradient(135deg, #8b5cf6, #3b82f6); color: white; box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4); }
+    .admin-container { max-width: 1100px; margin: 40px auto; background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 28px; padding: 40px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+    .admin-header { text-align: center; margin-bottom: 40px; }
+    .admin-header h1 { color: #fff; font-size: 2.2rem; text-shadow: 0 0 20px rgba(139, 92, 246, 0.5); margin-bottom: 10px; }
+    .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 20px; flex-wrap: wrap; border: 1px solid rgba(255,255,255,0.05); }
+    .tab-btn { padding: 12px 25px; background: transparent; color: #cbd5e1; border: none; border-radius: 14px; cursor: pointer; font-family: inherit; font-weight: bold; transition: 0.3s; font-size: 1rem; }
+    .tab-btn.active { background: linear-gradient(135deg, #8b5cf6, #3b82f6); color: white; box-shadow: 0 5px 20px rgba(139, 92, 246, 0.5); }
     .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+    
+    /* فرم دو ستونه */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+    .form-grid .full-width { grid-column: 1 / -1; }
+    .form-group label { color: #cbd5e1; font-weight: 600; margin-bottom: 8px; display: block; font-size: 0.95rem; }
+    
+    .admin-project-item { display: flex; justify-content: space-between; align-items: center; padding: 18px; border-radius: 16px; margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; flex-wrap: wrap; gap: 15px; }
+    .admin-project-item:hover { background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); transform: translateX(-5px); }
+    
     .participant-table { width: 100%; border-collapse: collapse; margin-top: 10px; color: white; }
-    .participant-table th, .participant-table td { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 15px; text-align: center; }
-    .participant-table th { background: rgba(255,255,255,0.05); color: #94a3b8; font-weight: normal; }
+    .participant-table th, .participant-table td { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 18px 15px; text-align: center; }
+    .participant-table th { background: rgba(0,0,0,0.3); color: #a78bfa; font-weight: normal; font-size: 1.05rem; }
     
-    .draw-box { text-align: center; padding: 50px 20px; background: rgba(0,0,0,0.2); border-radius: 20px; border: 2px dashed rgba(139, 92, 246, 0.5); margin-top: 20px; }
-    #winner-display { font-size: 2.5rem; background: linear-gradient(to right, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; margin: 30px 0; min-height: 60px; }
-    #winner-phone { color: #94a3b8; font-size: 1.2rem; margin-bottom: 20px; direction: ltr; }
+    .draw-box { text-align: center; padding: 60px 20px; background: rgba(0,0,0,0.3); border-radius: 24px; border: 2px dashed rgba(139, 92, 246, 0.5); margin-top: 20px; box-shadow: inset 0 0 30px rgba(139, 92, 246, 0.1); }
+    #winner-display { font-size: 3rem; background: linear-gradient(to right, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; margin: 30px 0; min-height: 70px; filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.4)); }
+    #winner-phone { color: #94a3b8; font-size: 1.3rem; margin-bottom: 20px; direction: ltr; }
     
-    .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5000; justify-content: center; align-items: center; overflow-y: auto; padding: 20px; }
-    .modal-box { background: #1e293b; border: 1px solid rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; width: 100%; max-width: 500px; color: white; position: relative; }
-    .modal-box .form-input { margin-bottom: 15px; }
-    .print-btn { background: #10b981; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; font-family: inherit; }
-    #qrcode { display: flex; justify-content: center; margin: 20px 0; background: white; padding: 20px; border-radius: 12px; width: fit-content; margin-left: auto; margin-right: auto; }
+    .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 10, 0.85); backdrop-filter: blur(15px); z-index: 5000; justify-content: center; align-items: center; overflow-y: auto; padding: 20px; }
+    .modal-box { background: rgba(20, 25, 40, 0.95); border: 1px solid rgba(139, 92, 246, 0.3); padding: 40px; border-radius: 32px; width: 100%; max-width: 650px; color: white; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8); animation: popIn 0.4s ease; }
+    .modal-box .form-input { margin-bottom: 0; }
+    .print-btn { background: #10b981; color: white; padding: 12px 25px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 15px; font-family: inherit; transition: 0.3s; }
+    #qrcode { display: flex; justify-content: center; margin: 25px 0; background: white; padding: 25px; border-radius: 20px; width: fit-content; margin-left: auto; margin-right: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .admin-container { padding: 20px; }
+    }
   </style>
 </head>
 <body>
   <div class="admin-container">
-    <h1>🔧 پنل مدیریت</h1>
+    <div class="admin-header">
+      <h1>🔧 پنل مدیریت مسابقه</h1>
+    </div>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="openTab('tab-add')">افزودن پروژه</button>
+      <button class="tab-btn active" onclick="openTab('tab-add')">➕ افزودن پروژه</button>
       <button class="tab-btn" onclick="openTab('tab-leaderboard')">🏆 جدول رده‌بندی</button>
-      <button class="tab-btn" onclick="openTab('tab-participants')">شرکت‌کننده‌ها</button>
+      <button class="tab-btn" onclick="openTab('tab-participants')">👥 شرکت‌کننده‌ها</button>
       <button class="tab-btn" onclick="openTab('tab-draw')">🎁 قرعه‌کشی</button>
     </div>
 
+    <!-- تب افزودن -->
     <div id="tab-add" class="tab-content active">
       <form id="add-form">
-        <div class="form-group"><label>رمز عبور ادمین</label><input type="password" id="password" class="form-input" required placeholder="رمز ادمین"></div>
-        <div class="form-group"><label>عنوان پروژه</label><input type="text" id="title" class="form-input" required placeholder="مثلاً: ربات مسیریاب"></div>
-        <div class="form-group"><label>نام تیم / سازنده</label><input type="text" id="team" class="form-input" placeholder="مثلاً: تیم آتش"></div>
-        <div class="form-group">
-          <label>دسته بندی</label>
-          <select id="category" class="form-input" style="background: #1e293b;">
-            <option value="robot">🤖 ربات</option>
-            <option value="game">🎮 بازی</option>
-          </select>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>رمز عبور ادمین</label>
+            <input type="password" id="password" class="form-input" required placeholder="رمز ادمین">
+          </div>
+          <div class="form-group">
+            <label>عنوان پروژه</label>
+            <input type="text" id="title" class="form-input" required placeholder="مثلاً: ربات مسیریاب">
+          </div>
+          <div class="form-group">
+            <label>نام تیم / سازنده</label>
+            <input type="text" id="team" class="form-input" placeholder="مثلاً: تیم آتش">
+          </div>
+          <div class="form-group">
+            <label>دسته بندی</label>
+            <select id="category" class="form-input" style="background: #1e293b;">
+              <option value="robot">🤖 ربات</option>
+              <option value="game">🎮 بازی</option>
+              <option value="creator">👨‍💻 پروژه سازنده سایت</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label>توضیحات کامل</label>
+            <textarea id="description" class="form-input" required placeholder="توضیح کامل..." style="height: 120px; resize: none;"></textarea>
+          </div>
+          <div class="form-group">
+            <label>انتخاب عکس از کامپیوتر (پیشنهادی)</label>
+            <input type="file" id="image_file" accept="image/*" class="form-input" style="padding: 12px;">
+          </div>
+          <div class="form-group">
+            <label>یا لینک عکس را وارد کنید:</label>
+            <input type="url" id="image_url_text" class="form-input" placeholder="https://example.com/image.jpg">
+          </div>
+          <div class="form-group full-width">
+            <label>آدرس ویدیو (لینک یوتیوب یا آپارات)</label>
+            <input type="url" id="video_url" class="form-input" placeholder="https://www.aparat.com/v/...">
+          </div>
         </div>
-        <div class="form-group"><label>توضیحات کامل</label><textarea id="description" class="form-input" required placeholder="توضیح کامل..." style="height: 100px; resize: none;"></textarea></div>
-        <div class="form-group">
-          <label>انتخاب عکس از کامپیوتر (پیشنهادی)</label>
-          <input type="file" id="image_file" accept="image/*" class="form-input" style="padding: 10px;">
-          <label style="font-size: 0.85rem; color: #94a3b8; margin-top:5px; display:block;">یا لینک عکس را وارد کنید:</label>
-          <input type="url" id="image_url_text" class="form-input" placeholder="https://example.com/image.jpg">
-        </div>
-        <div class="form-group"><label>آدرس ویدیو (لینک یوتیوب یا آپارات)</label><input type="url" id="video_url" class="form-input" placeholder="https://www.aparat.com/v/..."></div>
         <button type="submit" class="btn-primary" id="submit-btn">➕ افزودن پروژه</button>
       </form>
 
-      <div class="admin-projects" style="margin-top: 30px;">
-        <h3 style="margin-bottom: 15px; color: #fff;">پروژه‌های موجود</h3>
+      <div class="admin-projects" style="margin-top: 50px;">
+        <h3 style="margin-bottom: 20px; color: #fff; font-size: 1.3rem;">پروژه‌های موجود</h3>
         <div id="admin-list" style="color: #cbd5e1;">در حال بارگذاری...</div>
       </div>
     </div>
 
+    <!-- تب رده‌بندی -->
     <div id="tab-leaderboard" class="tab-content">
-      <h3 style="margin-bottom: 15px; color: #fff;">🏆 رتبه‌بندی پروژه‌ها</h3>
-      <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 16px;">
+      <h3 style="margin-bottom: 20px; color: #fff; font-size: 1.3rem;">🏆 رتبه‌بندی پروژه‌ها</h3>
+      <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
         <table class="participant-table" id="leaderboard-table">
           <thead><tr><th>رتبه</th><th>پروژه</th><th>تیم</th><th>میانگین</th><th>تعداد رأی</th></tr></thead>
           <tbody id="leaderboard-body"><tr><td colspan="5">در حال بارگذاری...</td></tr></tbody>
@@ -76,9 +117,10 @@
       </div>
     </div>
 
+    <!-- تب شرکت‌کننده‌ها -->
     <div id="tab-participants" class="tab-content">
-      <h3 style="margin-bottom: 15px; color: #fff;">لیست شرکت‌کننده‌ها</h3>
-      <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 16px;">
+      <h3 style="margin-bottom: 20px; color: #fff; font-size: 1.3rem;">لیست شرکت‌کننده‌ها</h3>
+      <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
         <table class="participant-table" id="participants-table">
           <thead><tr><th>نام</th><th>نام خانوادگی</th><th>شماره تماس</th><th>امتیاز</th><th>پروژه</th></tr></thead>
           <tbody id="participants-body"><tr><td colspan="5">در حال بارگذاری...</td></tr></tbody>
@@ -86,58 +128,66 @@
       </div>
     </div>
 
+    <!-- تب قرعه‌کشی -->
     <div id="tab-draw" class="tab-content">
       <div class="draw-box">
-        <h3 style="color: #fff; font-size: 1.5rem;">قرعه‌کشی ویژه</h3>
-        <p style="color: #94a3b8; margin-top: 10px;">دکمه زیر را بزنید.</p>
+        <h3 style="color: #fff; font-size: 1.6rem; text-shadow: 0 0 15px rgba(255,255,255,0.3);">قرعه‌کشی ویژه</h3>
+        <p style="color: #94a3b8; margin-top: 10px;">دکمه زیر را بزنید تا برنده انتخاب شود.</p>
         <div id="winner-display">-</div>
         <div id="winner-phone"></div>
         <button class="btn-primary" onclick="startDraw()" id="draw-btn" style="max-width: 300px; margin: 0 auto;">🎲 شروع قرعه‌کشی</button>
       </div>
     </div>
     
-    <div style="text-align: center; margin-top:30px;">
-        <a href="index.html" style="color: #8b5cf6; text-decoration: none; font-weight: bold;">← بازگشت به سایت</a>
+    <div style="text-align: center; margin-top:40px;">
+        <a href="index.html" style="color: #a78bfa; text-decoration: none; font-weight: bold; font-size: 1.1rem; transition: 0.3s;" onmouseover="this.style.color='#fff'; this.style.textShadow='0 0 10px #8b5cf6'" onmouseout="this.style.color='#a78bfa'; this.style.textShadow='none'">← بازگشت به سایت</a>
     </div>
   </div>
 
+  <!-- مودال QR -->
   <div id="qr-modal" class="custom-modal">
     <div class="modal-box text-center">
-      <h2 id="qr-title" style="color: #60a5fa; margin-bottom: 10px;"></h2>
+      <h2 id="qr-title" style="color: #60a5fa; margin-bottom: 15px; font-size: 1.5rem;"></h2>
       <div id="qrcode"></div>
-      <div style="display:flex; justify-content:center; gap:10px; margin-top:20px;">
+      <div style="display:flex; justify-content:center; gap:15px; margin-top:25px;">
         <button class="print-btn" onclick="window.print()">🖨️ پرینت</button>
         <button class="print-btn" style="background:#ef4444;" onclick="document.getElementById('qr-modal').style.display='none'">بستن</button>
       </div>
     </div>
   </div>
 
+  <!-- مودال ویرایش -->
   <div id="edit-modal" class="custom-modal">
     <div class="modal-box">
-      <h2 style="color: #60a5fa; margin-bottom: 20px; text-align: center;">✏️ ویرایش پروژه</h2>
+      <h2 style="color: #60a5fa; margin-bottom: 25px; text-align: center; font-size: 1.5rem;">✏️ ویرایش پروژه</h2>
       <form id="edit-form">
         <input type="hidden" id="edit-id">
-        <div class="form-group"><label>رمز ادمین</label><input type="password" id="edit-password" class="form-input" required></div>
-        <div class="form-group"><label>عنوان پروژه</label><input type="text" id="edit-title" class="form-input" required></div>
-        <div class="form-group"><label>نام تیم</label><input type="text" id="edit-team" class="form-input"></div>
-        <div class="form-group">
-          <label>دسته بندی</label>
-          <select id="edit-category" class="form-input" style="background: #1e293b;">
-            <option value="robot">🤖 ربات</option>
-            <option value="game">🎮 بازی</option>
-          </select>
+        <div class="form-grid">
+          <div class="form-group"><label>رمز ادمین</label><input type="password" id="edit-password" class="form-input" required></div>
+          <div class="form-group"><label>عنوان پروژه</label><input type="text" id="edit-title" class="form-input" required></div>
+          <div class="form-group"><label>نام تیم</label><input type="text" id="edit-team" class="form-input"></div>
+          <div class="form-group">
+            <label>دسته بندی</label>
+            <select id="edit-category" class="form-input" style="background: #1e293b;">
+              <option value="robot">🤖 ربات</option>
+              <option value="game">🎮 بازی</option>
+              <option value="creator">👨‍💻 پروژه سازنده سایت</option>
+            </select>
+          </div>
+          <div class="form-group full-width"><label>توضیحات</label><textarea id="edit-description" class="form-input" required style="height: 100px; resize:none;"></textarea></div>
+          <div class="form-group">
+              <label>عکس جدید (اختیاری)</label>
+              <input type="file" id="edit-image-file" accept="image/*" class="form-input" style="padding: 12px;">
+          </div>
+          <div class="form-group">
+              <label>یا لینک عکس جدید:</label>
+              <input type="url" id="edit-image-text" class="form-input">
+          </div>
+          <div class="form-group full-width"><label>آدرس ویدیو جدید</label><input type="url" id="edit-video" class="form-input"></div>
         </div>
-        <div class="form-group"><label>توضیحات</label><textarea id="edit-description" class="form-input" required style="height: 80px; resize:none;"></textarea></div>
-        <div class="form-group">
-            <label>عکس جدید (اختیاری)</label>
-            <input type="file" id="edit-image-file" accept="image/*" class="form-input" style="padding: 10px;">
-            <label style="font-size: 0.85rem; color: #94a3b8; margin-top:5px; display:block;">یا لینک عکس جدید:</label>
-            <input type="url" id="edit-image-text" class="form-input">
-        </div>
-        <div class="form-group"><label>آدرس ویدیو جدید</label><input type="url" id="edit-video" class="form-input"></div>
-        <div style="display:flex; gap:10px;">
-          <button type="submit" class="btn-primary" style="background: #10b981;" id="edit-submit-btn">💾 ذخیره</button>
-          <button type="button" class="btn-primary" style="background: #ef4444;" onclick="document.getElementById('edit-modal').style.display='none'">انصراف</button>
+        <div style="display:flex; gap:12px; margin-top:20px;">
+          <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #10b981, #059669);" id="edit-submit-btn">💾 ذخیره تغییرات</button>
+          <button type="button" class="btn-primary" style="background: linear-gradient(135deg, #ef4444, #b91c1c);" onclick="document.getElementById('edit-modal').style.display='none'">انصراف</button>
         </div>
       </form>
     </div>
