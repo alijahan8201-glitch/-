@@ -1,3 +1,10 @@
+// ==================== ثبت سرویس ورکر برای PWA ====================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
+  });
+}
+
 const API_URL = '/api';
 
 function getVoterId() {
@@ -32,6 +39,7 @@ document.getElementById('start-btn').addEventListener('click', () => {
     showToast('لطفاً همه فیلدها را پر کنید', 'error');
     return;
   }
+
   const phoneRegex = /^09\d{9}$/;
   if (!phoneRegex.test(phone)) {
     showToast('شماره موبایل نامعتبر است! باید ۱۱ رقم و با ۰۹ شروع شود.', 'error');
@@ -40,6 +48,7 @@ document.getElementById('start-btn').addEventListener('click', () => {
 
   userInfo = { first_name: fname, last_name: lname, phone_number: phone };
   localStorage.setItem('user_info', JSON.stringify(userInfo));
+
   document.getElementById('info-screen').style.display = 'none';
   document.getElementById('main-screen').style.display = 'block';
   loadProjects();
@@ -62,7 +71,9 @@ function markAsVoted(projectId) {
 
 function getVideoHtml(url) {
   if (!url) return '';
-  if (url.includes('uploads/') || url.endsWith('.mp4')) return `<video src="${url}" controls style="width:100%; height:100%;"></video>`;
+  if (url.includes('uploads/') || url.endsWith('.mp4')) {
+    return `<video src="${url}" controls style="width:100%; height:100%;"></video>`;
+  }
   let embedUrl = url;
   if (url.includes('youtube.com/watch?v=')) embedUrl = url.replace('watch?v=', 'embed/');
   if (url.includes('youtu.be/')) embedUrl = url.replace('youtu.be/', 'youtube.com/embed/');
