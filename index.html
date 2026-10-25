@@ -5,11 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>نمایشگاه رباتیک و هوش مصنوعی</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- ==================== تنظیمات PWA (نصب روی گوشی) ==================== -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="رباتیک ره‌نشان">
+  
+  <!-- کتابخانه افکت کانفتی -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
   <div class="bg-shapes"></div>
 
+  <!-- صفحه ۱: خوش‌آمدگویی -->
   <div id="welcome-screen" class="glass-container">
     <img src="logo.png" alt="لوگو آموزشگاه" class="main-logo">
     <h1>نمایشگاه رباتیک و هوش مصنوعی</h1>
@@ -22,24 +32,34 @@
     <button id="to-info-btn" class="btn-primary">ورود به نمایشگاه</button>
   </div>
 
+  <!-- صفحه ۲: ثبت اطلاعات -->
   <div id="info-screen" class="glass-container" style="display: none;">
     <img src="logo.png" alt="لوگو آموزشگاه" class="small-logo">
     <h1>📝 ثبت اطلاعات</h1>
     <p>لطفاً اطلاعات خود را برای شرکت در قرعه‌کشی وارد کنید.</p>
-    <div class="form-group"><input type="text" id="reg-firstname" class="form-input" placeholder="نام" required></div>
-    <div class="form-group"><input type="text" id="reg-lastname" class="form-input" placeholder="نام خانوادگی" required></div>
-    <div class="form-group"><input type="tel" id="reg-phone" class="form-input" placeholder="شماره موبایل" required></div>
+    <div class="form-group">
+      <input type="text" id="reg-firstname" class="form-input" placeholder="نام" required>
+    </div>
+    <div class="form-group">
+      <input type="text" id="reg-lastname" class="form-input" placeholder="نام خانوادگی" required>
+    </div>
+    <div class="form-group">
+      <input type="tel" id="reg-phone" class="form-input" placeholder="شماره موبایل" required>
+    </div>
     <button id="start-btn" class="btn-primary">شروع رأی‌گیری</button>
   </div>
 
+  <!-- صفحه ۳: لیست پروژه‌ها و جدول رده‌بندی -->
   <div id="main-screen" class="main-container" style="display: none;">
+    
+    <!-- هدر سایت -->
     <header class="main-header">
       <img src="logo.png" alt="لوگو آموزشگاه" class="header-logo">
       <h2>پروژه‌های نمایشگاه</h2>
       <p>برای مشاهده جزئیات و امتیازدهی، روی هر کارت کلیک کنید</p>
     </header>
 
-    <!-- بنر سازنده -->
+    <!-- 🌟 بنر سازنده (بالای صفحه) 🌟 -->
     <div class="dev-banner">
       <div class="dev-banner-img-wrapper">
         <img src="developer.jpg" alt="طراح و سازنده سایت" class="dev-banner-img" onerror="this.src='logo.png'">
@@ -84,7 +104,7 @@
       </div>
     </div>
 
-    <!-- فوتر -->
+    <!-- فوتر کامل در پایین صفحه -->
     <footer class="developer-footer">
       <div class="dev-card">
         <div class="dev-image-wrapper">
@@ -99,12 +119,14 @@
     </footer>
   </div>
 
+  <!-- مودال امتیازدهی -->
   <div id="project-modal" class="modal-overlay">
     <div class="modal-content">
       <button class="close-modal" onclick="closeModal()">&times;</button>
       <h2 id="modal-title"></h2>
       <div id="modal-video-container"></div>
       <p id="modal-desc"></p>
+      
       <div id="rating-section" class="rating-section">
         <h3>امتیاز خود را انتخاب کنید (۱ تا ۱۰)</h3>
         <div class="rating-buttons">
@@ -121,10 +143,14 @@
         </div>
         <button id="submit-rating-btn" class="btn-primary" onclick="submitRating()" disabled>ثبت امتیاز</button>
       </div>
-      <div id="already-rated-msg" style="display: none;">شما قبلاً به این پروژه امتیاز داده‌اید. ممنون! ✅</div>
+
+      <div id="already-rated-msg" style="display: none;">
+        شما قبلاً به این پروژه امتیاز داده‌اید. ممنون! ✅
+      </div>
     </div>
   </div>
 
+  <!-- پاپ‌آپ تشکر و اینستاگرام (مخصوص اولین رأی) -->
   <div id="thank-you-modal" class="thank-you-overlay">
     <div class="thank-you-content">
       <div class="star-icon">🌟</div>
