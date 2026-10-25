@@ -1,10 +1,3 @@
-// ==================== ثبت سرویس ورکر برای PWA ====================
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
-  });
-}
-
 const API_URL = '/api';
 
 function getVoterId() {
@@ -141,29 +134,24 @@ function showLeaderboard(category, btnElement) {
   document.getElementById('projects').style.display = 'none';
   document.getElementById('leaderboard-container').style.display = 'block';
   
-  // تنظیم حالت اولیه دکمه‌های تب اصلی
   document.querySelectorAll('.filter-tabs > .filter-btn').forEach(btn => btn.classList.remove('active'));
   btnElement.classList.add('active');
 
-  // رفرش کردن جدول با دسته‌بندی پیش‌فرض (ربات)
   document.getElementById('btn-lb-robot').classList.add('active');
   document.getElementById('btn-lb-game').classList.remove('active');
   loadLeaderboard('robot', document.getElementById('btn-lb-robot'));
 }
 
 function loadLeaderboard(category, btnElement) {
-  // تغییر حالت دکمه‌های داخلی جدول
   document.querySelectorAll('#leaderboard-container .filter-btn').forEach(btn => btn.classList.remove('active'));
   btnElement.classList.add('active');
 
-  // فیلتر و مرتب‌سازی پروژه‌ها
   let filtered = allProjects.filter(p => p.category === category);
   filtered.sort((a, b) => parseFloat(b.avg_score) - parseFloat(a.avg_score));
 
   const top3 = filtered.slice(0, 3);
   const rest = filtered.slice(3);
   
-  // --- آپدیت سکوی قهرمانی ---
   const grid = document.getElementById('podium-grid');
   if (top3.length === 0) {
     grid.innerHTML = '<div style="color:#cbd5e1; text-align:center; width:100%;">هنوز پروژه‌ای در این دسته ثبت نشده است.</div>';
@@ -175,13 +163,12 @@ function loadLeaderboard(category, btnElement) {
     `;
   }
 
-  // --- آپدیت جدول بقیه رتبه‌ها ---
   const tbody = document.getElementById('leaderboard-body-main');
   if (rest.length === 0) {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 30px;">پروژه دیگری در این دسته وجود ندارد.</td></tr>';
   } else {
     tbody.innerHTML = rest.map((p, index) => {
-      const rank = index + 4; // چون از رتبه ۴ شروع میشه
+      const rank = index + 4; 
       return `
         <tr>
           <td style="font-weight: bold; font-size: 1.1rem;">${rank}</td>
