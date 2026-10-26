@@ -47,9 +47,11 @@
       <button class="tab-btn active" onclick="openTab('tab-add')">➕ افزودن پروژه</button>
       <button class="tab-btn" onclick="openTab('tab-leaderboard')">🏆 جدول رده‌بندی</button>
       <button class="tab-btn" onclick="openTab('tab-participants')">👥 شرکت‌کننده‌ها</button>
+      <button class="tab-btn" onclick="openTab('tab-qr-teams')">📱 QR شرکت‌کننده‌ها</button>
       <button class="tab-btn" onclick="openTab('tab-draw')">🎁 قرعه‌کشی</button>
     </div>
 
+    <!-- تب 1: افزودن -->
     <div id="tab-add" class="tab-content active">
       <form id="add-form">
         <div class="form-grid">
@@ -62,8 +64,8 @@
             <input type="text" id="title" class="form-input" required placeholder="مثلاً: ربات مسیریاب">
           </div>
           <div class="form-group">
-            <label>نام تیم / سازنده</label>
-            <input type="text" id="team" class="form-input" placeholder="مثلاً: تیم آتش">
+            <label>نام تیم / سازنده (حتماً یکسان وارد کنید)</label>
+            <input type="text" id="team" class="form-input" placeholder="مثلاً: پوریا جهانشاهی">
           </div>
           <div class="form-group">
             <label>دسته بندی اصلی</label>
@@ -105,15 +107,13 @@
       </div>
     </div>
 
-    <!-- تب رده‌بندی با فیلتر ربات و بازی -->
+    <!-- تب 2: رده‌بندی -->
     <div id="tab-leaderboard" class="tab-content">
       <h3 style="margin-bottom: 20px; color: #fff; font-size: 1.3rem;">🏆 رتبه‌بندی پروژه‌ها</h3>
-      
       <div class="filter-tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
         <button class="filter-btn active" id="btn-admin-lb-robot" onclick="loadAdminLeaderboard('robot', this)">🤖 ربات‌ها</button>
         <button class="filter-btn" id="btn-admin-lb-game" onclick="loadAdminLeaderboard('game', this)">🎮 بازی‌ها</button>
       </div>
-
       <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
         <table class="participant-table" id="leaderboard-table">
           <thead><tr><th>رتبه</th><th>پروژه</th><th>تیم</th><th>میانگین</th><th>تعداد رأی</th></tr></thead>
@@ -122,6 +122,7 @@
       </div>
     </div>
 
+    <!-- تب 3: شرکت‌کننده‌ها -->
     <div id="tab-participants" class="tab-content">
       <h3 style="margin-bottom: 20px; color: #fff; font-size: 1.3rem;">لیست شرکت‌کننده‌ها</h3>
       <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
@@ -132,6 +133,16 @@
       </div>
     </div>
 
+    <!-- تب 4: QR شرکت‌کننده‌ها (جدید) -->
+    <div id="tab-qr-teams" class="tab-content">
+      <h3 style="margin-bottom: 20px; color: #fff; font-size: 1.3rem;">📱 QR Code اختصاصی هر شرکت‌کننده</h3>
+      <p style="color: #94a3b8; margin-bottom: 20px;">با کلیک روی هر نام، یک QR Code ساخته می‌شود که با اسکن آن، تمام پروژه‌های آن شخص در یک صفحه نمایش داده می‌شود.</p>
+      <div id="teams-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+        <div>در حال بارگذاری لیست...</div>
+      </div>
+    </div>
+
+    <!-- تب 5: قرعه‌کشی -->
     <div id="tab-draw" class="tab-content">
       <div class="draw-box">
         <h3 style="color: #fff; font-size: 1.6rem; text-shadow: 0 0 15px rgba(255,255,255,0.3);">قرعه‌کشی ویژه</h3>
@@ -147,6 +158,7 @@
     </div>
   </div>
 
+  <!-- مودال QR -->
   <div id="qr-modal" class="custom-modal">
     <div class="modal-box text-center">
       <h2 id="qr-title" style="color: #60a5fa; margin-bottom: 15px; font-size: 1.5rem;"></h2>
@@ -158,6 +170,7 @@
     </div>
   </div>
 
+  <!-- مودال ویرایش -->
   <div id="edit-modal" class="custom-modal">
     <div class="modal-box">
       <h2 style="color: #60a5fa; margin-bottom: 25px; text-align: center; font-size: 1.5rem;">✏️ ویرایش پروژه</h2>
