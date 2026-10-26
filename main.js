@@ -86,7 +86,6 @@ function renderProjects(projects) {
   filterProjects('all'); 
 }
 
-// ==================== فیلترهای اصلی صفحه ====================
 function filterProjects(category, btnElement = null) {
   document.getElementById('projects').style.display = 'grid';
   document.getElementById('leaderboard-container').style.display = 'none';
@@ -129,7 +128,6 @@ function filterProjects(category, btnElement = null) {
   }).join('');
 }
 
-// ==================== منطق جدول رده‌بندی ====================
 function showLeaderboard(category, btnElement) {
   document.getElementById('projects').style.display = 'none';
   document.getElementById('leaderboard-container').style.display = 'block';
@@ -182,7 +180,6 @@ function loadLeaderboard(category, btnElement) {
   }
 }
 
-// ==================== مودال و بقیه موارد ====================
 function openModal(projectId) {
   currentProjectId = projectId;
   const project = allProjects.find(p => p.id === projectId);
@@ -266,17 +263,40 @@ async function loadProjects() {
   try {
     const response = await fetch(`${API_URL}/projects`);
     const data = await response.json();
-    renderProjects(data);
+    
     const urlParams = new URLSearchParams(window.location.search);
     const projectIdFromUrl = urlParams.get('p');
-    if (projectIdFromUrl) {
+    const teamFromUrl = urlParams.get('team');
+
+    if (teamFromUrl) {
+      // حالت اسکن QR کد شرکت‌کننده (نمایش همه پروژه‌های یک شخص)
+      const decodedTeam = decodeURIComponent(teamFromUrl);
+      const filteredProjects = data.filter(p => p.team_name === decodedTeam);
+      
+      // مخفی کردن تب‌ها و تغییر عنوان
+      document.querySelector('.main-header h2').textContent = `پروژه‌های ${decodedTeam}`;
+      document.querySelector('.main-header p').textContent = 'لطفاً به هر یک از پروژه‌های این شرکت‌کننده امتیاز دهید.';
+      document.querySelector('.filter-tabs').style.display = 'none'; 
+      document.querySelector('.dev-banner').style.display = 'none'; 
+      
+      allProjects = filteredProjects;
+      filterProjects('all'); // رندر کردن فقط پروژه‌های این شخص
+      
+    } else if (projectIdFromUrl) {
+      // حالت اسکن QR یک پروژه خاص
       if (!userInfo) {
         showToast('لطفاً برای رأی دادن، ابتدا ثبت‌نام کنید', 'info');
         document.getElementById('welcome-screen').style.display = 'none';
         document.getElementById('info-screen').style.display = 'block';
       } else {
-        setTimeout(() => { openModal(parseInt(projectIdFromUrl)); }, 500);
+        renderProjects(data); 
+        setTimeout(() => { 
+          openModal(parseInt(projectIdFromUrl)); 
+        }, 500);
       }
+    } else {
+      // حالت عادی (ورود بدون QR)
+      renderProjects(data);
     }
   } catch (e) {
     document.getElementById('projects').innerHTML = '<div style="text-align:center; grid-column:1/-1; color:#ef4444;">خطا در بارگذاری پروژه‌ها</div>';
