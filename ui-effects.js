@@ -1,35 +1,47 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // ۱. افکت اسکرول (کارت‌ها با پایین رفتن، نرم ظاهر میشن)
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-    };
-
-    const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                observer.unobserve(entry.target); // فقط یک بار انیمیشن پخش بشه
-            }
+    // فقط روی دسکتاپ (هاور) افکت سه بعدی اجرا بشه تا روی گوشی خراب نشه
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        
+        document.body.addEventListener('mousemove', (e) => {
+            const card = e.target.closest('.project-card');
+            if (!card) return;
+            
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = ((y - centerY) / centerY) * -8; // حداکثر 8 درجه
+            const rotateY = ((x - centerX) / centerX) * 8;
+            
+            // خاموش کردن انیمیشن موقع حرکت برای اینکه دقیقا دنبال موس باشه
+            card.style.transition = 'none';
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            
+            // انتقال مختصات موس به CSS برای افکت نور
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
         });
-    }, observerOptions);
 
-    // هر وقت کارت جدیدی ساخته شد، به این لیست اضافه میشه
-    const observeCards = () => {
-        document.querySelectorAll('.project-card, .podium-card, .dev-card, .leaderboard-table-wrapper').forEach(el => {
-            el.classList.add('fade-up-element');
-            observer.observe(el);
+        document.body.addEventListener('mouseout', (e) => {
+            const card = e.target.closest('.project-card');
+            if (!card) return;
+            
+            // روشن کردن انیمیشن برگشت (فنری و نرم) موقع خروج موس
+            card.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease, border-color 0.3s ease';
+            card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+            
+            // برگردوندن نور به حالت اول
+            card.style.setProperty('--mouse-x', `-1000px`);
+            card.style.setProperty('--mouse-y', `-1000px`);
         });
-    };
-    
-    // اجرای اولیه
-    setTimeout(observeCards, 500); // کمی صبر میکنیم تا main.js کارت‌ها رو بسازه
+    }
 
-    // ۲. افکت لمس برای دکمه‌ها (Ripple)
+    // افکت موج (Ripple) برای دکمه‌ها
     document.body.addEventListener('click', function(e) {
-        const btn = e.target.closest('.btn-primary, .filter-btn, .rate-btn, .project-card');
+        const btn = e.target.closest('.btn-primary, .filter-btn, .rate-btn, .creator-btn, .insta-btn, .close-thanks-btn');
         if (!btn) return;
 
         const circle = document.createElement('span');
@@ -46,21 +58,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
         btn.appendChild(circle);
     });
-
-    // ۳. کانفتی از دو طرف
-    const originalConfetti = window.confetti;
-    window.confetti = function(options) {
-        if (options && options.particleCount === 150) { 
-            const duration = 2500;
-            const end = Date.now() + duration;
-
-            (function frame() {
-                originalConfetti({ particleCount: 6, angle: 60, spread: 60, origin: { x: 0, y: 0.8 }, colors: ['#8b5cf6', '#3b82f6', '#10b981', '#fbbf24'] });
-                originalConfetti({ particleCount: 6, angle: 120, spread: 60, origin: { x: 1, y: 0.8 }, colors: ['#8b5cf6', '#3b82f6', '#10b981', '#fbbf24'] });
-                if (Date.now() < end) requestAnimationFrame(frame);
-            }());
-        } else {
-            originalConfetti(options);
-        }
-    };
 });
