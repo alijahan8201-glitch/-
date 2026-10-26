@@ -20,6 +20,7 @@ function openTab(tabId) {
     document.getElementById('btn-admin-lb-game').classList.remove('active');
     loadAdminLeaderboard('robot', document.getElementById('btn-admin-lb-robot'));
   }
+  if (tabId === 'tab-qr-teams') loadTeamsForQR(); // لود کردن لیست برای QR
 }
 
 let savedPassword = sessionStorage.getItem('admin_password') || '';
@@ -77,7 +78,6 @@ async function loadProjectsList() {
         </div>
         <div style="display:flex; gap:8px;">
           <button onclick="openEditModal(${p.id})" style="background:#f59e0b; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer;">ویرایش ✏️</button>
-          <button onclick="showQRCode(${p.id})" style="background:#3b82f6; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer;">QR 📱</button>
           <button class="delete-btn" onclick="deleteProject(${p.id})">حذف</button>
         </div>
       </div>
@@ -85,7 +85,55 @@ async function loadProjectsList() {
   } catch (e) { container.innerHTML = '<div style="color:#ef4444;">خطا در بارگذاری</div>'; }
 }
 
-// ==================== جدول رده‌بندی تفکیک‌شده (ادمین) ====================
+// ==================== تب QR شرکت‌کننده‌ها ====================
+async function loadTeamsForQR() {
+  const container = document.getElementById('teams-list');
+  container.innerHTML = '<div>در حال بارگذاری...</div>';
+  
+  try {
+    const response = await fetch(`${API_URL}/projects`);
+    const data = await response.json();
+    
+    // استخراج اسامی یکتا (بدون تکرار) از فیلد team_name
+    const uniqueTeams = [...new Set(data.map(p => p.team_name).filter(t => t && t.trim() !== ''))];
+    
+    if (uniqueTeams.length === 0) {
+      container.innerHTML = '<div>هیچ شرکت‌کننده‌ای یافت نشد.</div>';
+      return;
+    }
+
+    container.innerHTML = uniqueTeams.map(team => `
+      <button onclick="showTeamQR('${team}')" style="padding: 15px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: white; border-radius: 12px; cursor: pointer; font-family: inherit; font-size: 1rem; transition: 0.3s; text-align: center;">
+        <span style="display: block; font-size: 1.5rem; margin-bottom: 5px;">👤</span>
+        ${team}
+      </button>
+    `).join('');
+  } catch (e) {
+    container.innerHTML = '<div style="color:#ef4444;">خطا در بارگذاری لیست</div>';
+  }
+}
+
+function showTeamQR(teamName) {
+  // ساخت لینک با پارامتر team
+  const siteUrl = window.location.origin + `/?team=${encodeURIComponent(teamName)}`;
+  
+  document.getElementById('qr-title').textContent = teamName;
+  document.getElementById('qr-modal').style.display = 'flex';
+  
+  const qrContainer = document.getElementById('qrcode'); 
+  qrContainer.innerHTML = '';
+  
+  new QRCode(qrContainer, { 
+    text: siteUrl, 
+    width: 250, 
+    height: 250, 
+    colorDark : "#0f172a", 
+    colorLight : "#ffffff", 
+    correctLevel : QRCode.CorrectLevel.H 
+  });
+}
+
+// ==================== جدول رده‌بندی ادمین ====================
 async function loadAdminLeaderboard(category, btnElement) {
   document.querySelectorAll('#tab-leaderboard .filter-btn').forEach(btn => btn.classList.remove('active'));
   if (btnElement) btnElement.classList.add('active');
@@ -97,7 +145,6 @@ async function loadAdminLeaderboard(category, btnElement) {
     const response = await fetch(`${API_URL}/projects`);
     const data = await response.json(); 
     
-    // فیلتر بر اساس دسته‌بندی
     let filtered = data.filter(p => p.category === category);
     
     if (filtered.length === 0) {
@@ -173,16 +220,6 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
   btn.disabled = false;
   btn.textContent = '💾 ذخیره تغییرات';
 });
-
-function showQRCode(projectId) {
-  const project = currentProjects.find(p => p.id === projectId);
-  const teamName = project && project.team_name ? project.team_name : 'بدون نام';
-  const siteUrl = window.location.origin + `/?p=${projectId}`;
-  document.getElementById('qr-title').textContent = teamName;
-  document.getElementById('qr-modal').style.display = 'flex';
-  const qrContainer = document.getElementById('qrcode'); qrContainer.innerHTML = '';
-  new QRCode(qrContainer, { text: siteUrl, width: 250, height: 250, colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
-}
 
 async function deleteProject(projectId) {
   const password = savedPassword || prompt('رمز ادمین:');
