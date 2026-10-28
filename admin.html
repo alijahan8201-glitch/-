@@ -38,79 +38,87 @@
 
     @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .admin-container { padding: 20px; } }
 
-    /* ==================== تنظیمات مخصوص پرینت (تک صفحه) ==================== */
+    /* ==================== تنظیمات نهایی پرینت (تک صفحه) ==================== */
     @media print {
-      /* ۱. صفر کردن حاشیه‌های کاغذ */
-      @page { margin: 0; size: auto; }
-      
-      /* ۲. پس‌زمینه کاملاً سفید */
-      body { 
-        background: white !important; 
-        margin: 0 !important; 
-        padding: 0 !important; 
+      /* ۱. تنظیم کاغذ A4 بدون حاشیه */
+      @page { 
+        size: A4 portrait; 
+        margin: 0; 
       }
       
-      /* ۳. مخفی کردن تمام اجزای سایت */
-      body * { visibility: hidden; }
+      /* ۲. مخفی کردن کل صفحه و جلوگیری از اسکرول اضافه */
+      html, body {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100vh !important; /* محدود کردن ارتفاع به یک صفحه */
+        overflow: hidden !important; /* جلوگیری از ایجاد صفحه دوم */
+      }
       
-      /* ۴. فقط و فقط مودال QR رو نشون بده */
-      #qr-modal, #qr-modal * { visibility: visible; }
+      /* ۳. مخفی کردن تمام المان‌های سایت */
+      body > *:not(#qr-modal) {
+        display: none !important;
+      }
       
-      /* ۵. قرار دادن مودال در مرکز صفحه بدون ایجاد صفحه دوم */
+      /* ۴. تنظیم مودال برای قرارگیری دقیق در مرکز صفحه */
       #qr-modal {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: auto;
         display: flex !important;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start; /* از بالا شروع میکنه تا وسط صفحه قرار بگیره */
-        padding-top: 50px; /* فاصله از بالا */
-        background: transparent !important;
-        page-break-after: avoid; /* جلوگیری از صفحه دوم */
-        page-break-inside: avoid; /* جلوگیری از شکستن کادر */
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: white !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 0 !important;
+        margin: 0 !important;
       }
       
-      /* ۶. حذف استایل‌های شیشه‌ای */
+      /* ۵. حذف استایل‌های اضافی از کادر */
       .modal-box {
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
         color: black !important;
+        text-align: center !important;
         padding: 0 !important;
         margin: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
         width: 100% !important;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
       }
       
-      /* ۷. مخفی کردن دکمه‌ها */
-      .print-btn { display: none !important; }
+      /* ۶. مخفی کردن دکمه‌ها */
+      .print-btn { 
+        display: none !important; 
+      }
       
-      /* ۸. اسم تیم */
+      /* ۷. اسم شخص */
       #qr-title {
         color: #000 !important;
-        font-size: 30pt !important;
-        margin-bottom: 15mm !important;
+        font-size: 35pt !important;
+        margin-bottom: 15mm !important; /* فاصله استاندارد تا QR */
         font-weight: bold !important;
         text-align: center !important;
       }
       
-      /* ۹. سایز QR (بزرگ و مربع) */
+      /* ۸. سایز دقیق QR (۱۰ سانتی متر برای جا شدن در یک صفحه بدون بیرون زدگی) */
       #qrcode {
         background: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
       }
+      
       #qrcode canvas, #qrcode img {
-        width: 140mm !important;
-        height: 140mm !important;
+        width: 100mm !important; 
+        height: 100mm !important;
         max-width: 100% !important;
-        object-fit: contain !important; /* این خط از کشیدگی جلوگیری میکنه */
+        max-height: 100% !important;
+        object-fit: contain !important; 
         display: block !important;
         margin: 0 auto !important;
       }
