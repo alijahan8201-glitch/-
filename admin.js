@@ -126,57 +126,80 @@ function showTeamQR(teamName) {
   });
 }
 
-// ==================== تابع ساخت فایل Word ====================
-function downloadWord() {
+// ==================== تابع ساخت فایل Word واقعی (docx) ====================
+async function downloadWord() {
   const teamName = document.getElementById('qr-title').textContent;
-  let qrSrc = '';
-  
-  // گرفتن عکس از کانواس یا تگ img
   const qrImg = document.querySelector('#qrcode img');
-  const qrCanvas = document.querySelector('#qrcode canvas');
   
-  if (qrImg && qrImg.src) {
-    qrSrc = qrImg.src;
-  } else if (qrCanvas) {
-    qrSrc = qrCanvas.toDataURL("image/png");
-  } else {
+  if (!qrImg) {
     showToast('خطا در دریافت تصویر QR', 'error');
     return;
   }
 
-  // ساخت ساختار HTML استاندارد برای فایل Word
-  const htmlContent = `
-    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-    <head>
-        <meta charset='utf-8'>
-        <title>QR Code</title>
-        <style>
-            @page { size: A4; margin: 2cm; }
-            body { font-family: 'Tahoma', 'B Nazanin', sans-serif; text-align: center; }
-            h1 { font-size: 36pt; margin-bottom: 50px; color: #000; }
-            img { width: 400px; height: 400px; object-fit: contain; }
-        </style>
-    </head>
-    <body>
-        <h1>${teamName}</h1>
-        <br><br>
-        <img src="${qrSrc}" />
-    </body>
-    </html>
-  `;
+  // تبدیل عکس Base64 به بافر باینری (که کتابخانه docx می‌خواد)
+  const base64Data = qrImg.src.split(',')[1];
+  const binaryString = atob(base64Data);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+  }
 
-  // ایجاد و دانلود فایل
-  const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `QR_${teamName}.doc`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  
-  showToast('فایل Word دانلود شد ✅', 'success');
+  try {
+    // استفاده از کتابخانه docx
+    const { Document, Packer, Paragraph, TextRun, ImageRun, AlignmentType } = docx;
+
+    const doc = new Document({
+        sections: [{
+            properties: {},
+            children: [
+                // اسم تیم (درشت و وسط چین)
+                new Paragraph({
+                    children: [
+                        new TextRun({
+                            text: teamName,
+                            bold: true,
+                            size: 72, // سایز فونت (36pt)
+                            font: "Tahoma",
+                            color: "000000",
+                        }),
+                    ],
+                    alignment: AlignmentType.CENTER,
+                    spacing: { after: 400 }, // فاصله بعد از متن
+                }),
+                // عکس QR Code (وسط چین)
+                new Paragraph({
+                    children: [
+                        new ImageRun({
+                            data: bytes,
+                            transformation: {
+                                width: 400, // عرض عکس
+                                height: 400, // ارتفاع عکس
+                            },
+                        }),
+                    ],
+                    alignment: AlignmentType.CENTER,
+                }),
+            ],
+        }],
+    });
+
+    // تولید و دانلود فایل نهایی
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `QR_${teamName}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('فایل Word دانلود شد ✅', 'success');
+  } catch (error) {
+    console.error(error);
+    showToast('خطا در ساخت فایل Word', 'error');
+  }
 }
 // ==================================================================
 
