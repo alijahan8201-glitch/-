@@ -17,7 +17,8 @@ function openTab(tabId, btnElement) {
   if (tabId === 'tab-participants') loadParticipants();
   if (tabId === 'tab-leaderboard') {
     document.getElementById('btn-admin-lb-robot').classList.add('active');
-    document.getElementById('btn-admin-lb-game').classList.remove('active');
+    document.getElementById('btn-admin-lb-python').classList.remove('active');
+    document.getElementById('btn-admin-lb-mblock').classList.remove('active');
     loadAdminLeaderboard('robot', document.getElementById('btn-admin-lb-robot'));
   }
   if (tabId === 'tab-qr-teams') loadTeamsForQR(); 
@@ -85,7 +86,6 @@ async function loadProjectsList() {
   } catch (e) { container.innerHTML = '<div style="color:#ef4444;">خطا در بارگذاری</div>'; }
 }
 
-// ==================== تب QR شرکت‌کننده‌ها ====================
 async function loadTeamsForQR() {
   const container = document.getElementById('teams-list');
   container.innerHTML = '<div>در حال بارگذاری...</div>';
@@ -126,24 +126,17 @@ function showTeamQR(teamName) {
   });
 }
 
-// ==================== تابع ساخت فایل Word واقعی (docx) ====================
 async function downloadWord() {
   const teamName = document.getElementById('qr-title').textContent;
   const qrImg = document.querySelector('#qrcode img');
   
-  if (!qrImg) {
-    showToast('خطا در دریافت تصویر QR', 'error');
-    return;
-  }
+  if (!qrImg) { showToast('خطا در دریافت تصویر QR', 'error'); return; }
 
-  // تبدیل عکس Base64 به بافر باینری
   const base64Data = qrImg.src.split(',')[1];
   const binaryString = atob(base64Data);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-  }
+  for (let i = 0; i < len; i++) { bytes[i] = binaryString.charCodeAt(i); }
 
   try {
     const { Document, Packer, Paragraph, TextRun, ImageRun, AlignmentType } = docx;
@@ -152,30 +145,25 @@ async function downloadWord() {
         sections: [{
             properties: {},
             children: [
-                // اسم تیم (درشت، وسط چین و راست چین)
                 new Paragraph({
                     children: [
                         new TextRun({
                             text: teamName,
                             bold: true,
-                            size: 72, // سایز فونت (36pt)
+                            size: 72,
                             font: "Tahoma",
                             color: "000000",
-                            rightToLeft: true, // 👈 این خط جادوییه که مشکل به هم ریختگی اسم رو حل میکنه
+                            rightToLeft: true, 
                         }),
                     ],
                     alignment: AlignmentType.CENTER,
-                    spacing: { after: 400 }, 
+                    spacing: { after: 400 },
                 }),
-                // عکس QR Code (وسط چین)
                 new Paragraph({
                     children: [
                         new ImageRun({
                             data: bytes,
-                            transformation: {
-                                width: 400, 
-                                height: 400, 
-                            },
+                            transformation: { width: 400, height: 400 },
                         }),
                     ],
                     alignment: AlignmentType.CENTER,
@@ -195,14 +183,9 @@ async function downloadWord() {
     URL.revokeObjectURL(url);
     
     showToast('فایل Word دانلود شد ✅', 'success');
-  } catch (error) {
-    console.error(error);
-    showToast('خطا در ساخت فایل Word', 'error');
-  }
+  } catch (error) { showToast('خطا در ساخت فایل Word', 'error'); }
 }
-// ==================================================================
 
-// ==================== جدول رده‌بندی ادمین ====================
 async function loadAdminLeaderboard(category, btnElement) {
   document.querySelectorAll('#tab-leaderboard .filter-btn').forEach(btn => btn.classList.remove('active'));
   if (btnElement) btnElement.classList.add('active');
