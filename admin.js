@@ -136,7 +136,7 @@ async function downloadWord() {
     return;
   }
 
-  // تبدیل عکس Base64 به بافر باینری (که کتابخانه docx می‌خواد)
+  // تبدیل عکس Base64 به بافر باینری
   const base64Data = qrImg.src.split(',')[1];
   const binaryString = atob(base64Data);
   const len = binaryString.length;
@@ -146,14 +146,13 @@ async function downloadWord() {
   }
 
   try {
-    // استفاده از کتابخانه docx
     const { Document, Packer, Paragraph, TextRun, ImageRun, AlignmentType } = docx;
 
     const doc = new Document({
         sections: [{
             properties: {},
             children: [
-                // اسم تیم (درشت و وسط چین)
+                // اسم تیم (درشت، وسط چین و راست چین)
                 new Paragraph({
                     children: [
                         new TextRun({
@@ -162,10 +161,11 @@ async function downloadWord() {
                             size: 72, // سایز فونت (36pt)
                             font: "Tahoma",
                             color: "000000",
+                            rightToLeft: true, // 👈 این خط جادوییه که مشکل به هم ریختگی اسم رو حل میکنه
                         }),
                     ],
                     alignment: AlignmentType.CENTER,
-                    spacing: { after: 400 }, // فاصله بعد از متن
+                    spacing: { after: 400 }, 
                 }),
                 // عکس QR Code (وسط چین)
                 new Paragraph({
@@ -173,8 +173,8 @@ async function downloadWord() {
                         new ImageRun({
                             data: bytes,
                             transformation: {
-                                width: 400, // عرض عکس
-                                height: 400, // ارتفاع عکس
+                                width: 400, 
+                                height: 400, 
                             },
                         }),
                     ],
@@ -184,7 +184,6 @@ async function downloadWord() {
         }],
     });
 
-    // تولید و دانلود فایل نهایی
     const blob = await Packer.toBlob(doc);
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
