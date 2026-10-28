@@ -37,6 +37,53 @@
     #qrcode { display: flex; justify-content: center; margin: 25px 0; background: white; padding: 25px; border-radius: 20px; width: fit-content; margin-left: auto; margin-right: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
     @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .admin-container { padding: 20px; } }
+
+    /* ==================== تنظیمات مخصوص پرینت QR Code ==================== */
+    @media print {
+      /* مخفی کردن تمام اجزای صفحه */
+      body * {
+        visibility: hidden;
+      }
+      /* فقط و فقط کادر QR و محتوای داخلش رو نشون بده */
+      #qr-modal, #qr-modal * {
+        visibility: visible;
+      }
+      /* قرار دادن کادر QR در بالای صفحه و سفید کردن پس‌زمینه */
+      #qr-modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        background: transparent !important;
+      }
+      .modal-box {
+        box-shadow: none !important;
+        border: none !important;
+        background: white !important;
+        color: black !important;
+        padding: 0;
+      }
+      /* مخفی کردن دکمه‌های پرینت و بستن */
+      .print-btn, .close-modal {
+        display: none !important;
+      }
+      /* حذف حاشیه و سایه از خود QR Code */
+      #qrcode {
+        box-shadow: none !important;
+        border: none !important;
+        margin: 20px auto;
+      }
+      /* تنظیم رنگ و فونت اسم تیم برای چاپ */
+      #qr-title {
+        font-size: 24px !important;
+        color: #000 !important;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -44,14 +91,13 @@
     <div class="admin-header"><h1>🔧 پنل مدیریت مسابقه</h1></div>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="openTab('tab-add')">➕ افزودن پروژه</button>
-      <button class="tab-btn" onclick="openTab('tab-leaderboard')">🏆 جدول رده‌بندی</button>
-      <button class="tab-btn" onclick="openTab('tab-participants')">👥 شرکت‌کننده‌ها</button>
-      <button class="tab-btn" onclick="openTab('tab-qr-teams')">📱 QR شرکت‌کننده‌ها</button>
-      <button class="tab-btn" onclick="openTab('tab-draw')">🎁 قرعه‌کشی</button>
+      <button class="tab-btn active" onclick="openTab('tab-add', this)">➕ افزودن پروژه</button>
+      <button class="tab-btn" onclick="openTab('tab-leaderboard', this)">🏆 جدول رده‌بندی</button>
+      <button class="tab-btn" onclick="openTab('tab-participants', this)">👥 شرکت‌کننده‌ها</button>
+      <button class="tab-btn" onclick="openTab('tab-qr-teams', this)">📱 QR شرکت‌کننده‌ها</button>
+      <button class="tab-btn" onclick="openTab('tab-draw', this)">🎁 قرعه‌کشی</button>
     </div>
 
-    <!-- تب 1: افزودن -->
     <div id="tab-add" class="tab-content active">
       <form id="add-form">
         <div class="form-grid">
@@ -107,7 +153,6 @@
       </div>
     </div>
 
-    <!-- تب 2: رده‌بندی -->
     <div id="tab-leaderboard" class="tab-content">
       <h3 style="margin-bottom: 20px; color: #fff; font-size: 1.3rem;">🏆 رتبه‌بندی پروژه‌ها</h3>
       <div class="filter-tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
@@ -122,7 +167,6 @@
       </div>
     </div>
 
-    <!-- تب 3: شرکت‌کننده‌ها -->
     <div id="tab-participants" class="tab-content">
       <h3 style="margin-bottom: 20px; color: #fff; font-size: 1.3rem;">لیست شرکت‌کننده‌ها</h3>
       <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
@@ -133,7 +177,6 @@
       </div>
     </div>
 
-    <!-- تب 4: QR شرکت‌کننده‌ها (جدید) -->
     <div id="tab-qr-teams" class="tab-content">
       <h3 style="margin-bottom: 20px; color: #fff; font-size: 1.3rem;">📱 QR Code اختصاصی هر شرکت‌کننده</h3>
       <p style="color: #94a3b8; margin-bottom: 20px;">با کلیک روی هر نام، یک QR Code ساخته می‌شود که با اسکن آن، تمام پروژه‌های آن شخص در یک صفحه نمایش داده می‌شود.</p>
@@ -142,7 +185,6 @@
       </div>
     </div>
 
-    <!-- تب 5: قرعه‌کشی -->
     <div id="tab-draw" class="tab-content">
       <div class="draw-box">
         <h3 style="color: #fff; font-size: 1.6rem; text-shadow: 0 0 15px rgba(255,255,255,0.3);">قرعه‌کشی ویژه</h3>
@@ -158,7 +200,6 @@
     </div>
   </div>
 
-  <!-- مودال QR -->
   <div id="qr-modal" class="custom-modal">
     <div class="modal-box text-center">
       <h2 id="qr-title" style="color: #60a5fa; margin-bottom: 15px; font-size: 1.5rem;"></h2>
@@ -170,7 +211,6 @@
     </div>
   </div>
 
-  <!-- مودال ویرایش -->
   <div id="edit-modal" class="custom-modal">
     <div class="modal-box">
       <h2 style="color: #60a5fa; margin-bottom: 25px; text-align: center; font-size: 1.5rem;">✏️ ویرایش پروژه</h2>
