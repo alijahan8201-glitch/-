@@ -38,79 +38,82 @@
 
     @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .admin-container { padding: 20px; } }
 
-    /* ==================== تنظیمات مخصوص پرینت QR Code ==================== */
+    /* ==================== تنظیمات طلایی مخصوص پرینت ==================== */
     @media print {
-      /* ۱. سفید کردن کل پس‌زمینه صفحه */
+      /* ۱. حذف حاشیه‌های پیش‌فرض کاغذ (فقط برای همین صفحه) */
+      @page { margin: 0; size: auto; }
+      
+      /* ۲. مخفی کردن کامل تمام اجزای سایت (نه فقط شفاف کردن) */
+      body > *:not(#qr-modal) {
+        display: none !important;
+      }
+      
+      /* ۳. پس‌زمینه کاملاً سفید و ریست کردن بدنه */
       html, body {
-        background: white !important;
-        background-color: white !important;
-        color: black !important;
         margin: 0 !important;
         padding: 0 !important;
+        background: white !important;
         height: 100% !important;
+        overflow: hidden !important;
       }
       
-      /* ۲. مخفی کردن تمام اجزای صفحه */
-      body * {
-        visibility: hidden;
-      }
-      
-      /* ۳. فقط و فقط کادر QR و محتوای داخلش رو قابل مشاهده کن */
-      #qr-modal, #qr-modal * {
-        visibility: visible;
-      }
-      
-      /* ۴. قرار دادن کادر QR در مرکز صفحه با فاصله از بالا */
+      /* ۴. تبدیل کادر QR به یک صفحه کامل و قرار دادن در مرکز */
       #qr-modal {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        background: transparent !important;
-        display: block !important;
-        padding-top: 30mm; /* فاصله از بالا */
+        display: flex !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: white !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 0 !important;
+        margin: 0 !important;
       }
       
-      /* ۵. استایل دادن به کادر برای چاپ تمیز (حذف رنگ‌ها و سایه‌ها) */
+      /* ۵. حذف استایل‌های اضافی از کادر داخلی */
       .modal-box {
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
         color: black !important;
-        text-align: center;
-        width: 100%;
+        text-align: center !important;
+        width: 100% !important;
         padding: 0 !important;
+        margin: 0 !important;
       }
       
-      /* ۶. استایل اسم تیم */
+      /* ۶. مخفی کردن دکمه‌های پرینت و بستن */
+      .print-btn { 
+        display: none !important; 
+      }
+      
+      /* ۷. استایل اسم تیم برای چاپ */
       #qr-title {
         color: #000 !important;
-        font-size: 28pt !important; /* سایز بزرگ برای چاپ */
-        margin-bottom: 15mm !important;
-        font-weight: bold;
-        text-align: center;
+        font-size: 36pt !important; /* سایز خیلی بزرگ */
+        margin-bottom: 20mm !important;
+        font-weight: bold !important;
+        text-align: center !important;
       }
       
-      /* ۷. استایل خود QR Code */
+      /* ۸. استایل خود QR Code */
       #qrcode {
         background: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 auto !important;
-        display: flex;
-        justify-content: center;
+        display: flex !important;
+        justify-content: center !important;
       }
       
+      /* ۹. سایز دقیق QR برای چاپ */
       #qrcode img, #qrcode canvas {
-        width: 120mm !important; /* سایز ۱۲ سانتی‌متر */
-        height: 120mm !important;
-        display: block;
-        margin: 0 auto;
-      }
-      
-      /* ۸. مخفی کردن دکمه‌ها */
-      .print-btn {
-        display: none !important;
+        width: 110mm !important; /* سایز ۱۱ سانتی‌متر */
+        height: 110mm !important;
+        display: block !important;
+        margin: 0 auto !important;
       }
     }
   </style>
