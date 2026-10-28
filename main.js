@@ -32,7 +32,6 @@ document.getElementById('start-btn').addEventListener('click', () => {
     showToast('لطفاً همه فیلدها را پر کنید', 'error');
     return;
   }
-
   const phoneRegex = /^09\d{9}$/;
   if (!phoneRegex.test(phone)) {
     showToast('شماره موبایل نامعتبر است! باید ۱۱ رقم و با ۰۹ شروع شود.', 'error');
@@ -41,7 +40,6 @@ document.getElementById('start-btn').addEventListener('click', () => {
 
   userInfo = { first_name: fname, last_name: lname, phone_number: phone };
   localStorage.setItem('user_info', JSON.stringify(userInfo));
-
   document.getElementById('info-screen').style.display = 'none';
   document.getElementById('main-screen').style.display = 'block';
   loadProjects();
@@ -64,9 +62,7 @@ function markAsVoted(projectId) {
 
 function getVideoHtml(url) {
   if (!url) return '';
-  if (url.includes('uploads/') || url.endsWith('.mp4')) {
-    return `<video src="${url}" controls style="width:100%; height:100%;"></video>`;
-  }
+  if (url.includes('uploads/') || url.endsWith('.mp4')) return `<video src="${url}" controls style="width:100%; height:100%;"></video>`;
   let embedUrl = url;
   if (url.includes('youtube.com/watch?v=')) embedUrl = url.replace('watch?v=', 'embed/');
   if (url.includes('youtu.be/')) embedUrl = url.replace('youtu.be/', 'youtube.com/embed/');
@@ -133,16 +129,17 @@ function showLeaderboard(category, btnElement) {
   document.getElementById('leaderboard-container').style.display = 'block';
   
   document.querySelectorAll('.filter-tabs > .filter-btn').forEach(btn => btn.classList.remove('active'));
-  btnElement.classList.add('active');
+  if(btnElement) btnElement.classList.add('active');
 
   document.getElementById('btn-lb-robot').classList.add('active');
-  document.getElementById('btn-lb-game').classList.remove('active');
+  document.getElementById('btn-lb-python').classList.remove('active');
+  document.getElementById('btn-lb-mblock').classList.remove('active');
   loadLeaderboard('robot', document.getElementById('btn-lb-robot'));
 }
 
 function loadLeaderboard(category, btnElement) {
   document.querySelectorAll('#leaderboard-container .filter-btn').forEach(btn => btn.classList.remove('active'));
-  btnElement.classList.add('active');
+  if(btnElement) btnElement.classList.add('active');
 
   let filtered = allProjects.filter(p => p.category === category);
   filtered.sort((a, b) => parseFloat(b.avg_score) - parseFloat(a.avg_score));
@@ -263,39 +260,30 @@ async function loadProjects() {
   try {
     const response = await fetch(`${API_URL}/projects`);
     const data = await response.json();
-    
     const urlParams = new URLSearchParams(window.location.search);
     const projectIdFromUrl = urlParams.get('p');
     const teamFromUrl = urlParams.get('team');
 
     if (teamFromUrl) {
-      // حالت اسکن QR کد شرکت‌کننده (نمایش همه پروژه‌های یک شخص)
-      const decodedTeam = decodeURIComponent(teamFromUrl);
-      const filteredProjects = data.filter(p => p.team_name === decodedTeam);
+      const decodedTeam = decodeURIComponent(teamFromUrl).trim();
+      const filteredProjects = data.filter(p => p.team_name && p.team_name.trim() === decodedTeam);
       
-      // مخفی کردن تب‌ها و تغییر عنوان
       document.querySelector('.main-header h2').textContent = `پروژه‌های ${decodedTeam}`;
       document.querySelector('.main-header p').textContent = 'لطفاً به هر یک از پروژه‌های این شرکت‌کننده امتیاز دهید.';
       document.querySelector('.filter-tabs').style.display = 'none'; 
       document.querySelector('.dev-banner').style.display = 'none'; 
       
-      allProjects = filteredProjects;
-      filterProjects('all'); // رندر کردن فقط پروژه‌های این شخص
-      
+      renderProjects(filteredProjects);
     } else if (projectIdFromUrl) {
-      // حالت اسکن QR یک پروژه خاص
       if (!userInfo) {
         showToast('لطفاً برای رأی دادن، ابتدا ثبت‌نام کنید', 'info');
         document.getElementById('welcome-screen').style.display = 'none';
         document.getElementById('info-screen').style.display = 'block';
       } else {
         renderProjects(data); 
-        setTimeout(() => { 
-          openModal(parseInt(projectIdFromUrl)); 
-        }, 500);
+        setTimeout(() => { openModal(parseInt(projectIdFromUrl)); }, 500);
       }
     } else {
-      // حالت عادی (ورود بدون QR)
       renderProjects(data);
     }
   } catch (e) {
