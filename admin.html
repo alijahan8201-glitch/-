@@ -38,17 +38,21 @@
 
     @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .admin-container { padding: 20px; } }
 
-    /* ==================== تنظیمات ضدگلوله پرینت ==================== */
+    /* ==================== تنظیمات قطعی و ضدباگ پرینت ==================== */
     @media print {
-      /* ۱. صفر کردن حاشیه‌های کاغذ */
-      @page { margin: 0; }
+      /* ۱. صفر کردن کامل حاشیه‌های کاغذ */
+      @page { 
+        size: auto; 
+        margin: 0; 
+      }
       
-      /* ۲. پس‌زمینه سفید برای کل صفحه */
+      /* ۲. سفید کردن کل صفحه و جلوگیری از اسکرول */
       html, body {
         background: white !important;
         margin: 0 !important;
         padding: 0 !important;
         height: 100% !important;
+        overflow: hidden !important;
       }
       
       /* ۳. مخفی کردن کامل تمام المان‌های سایت به جز مودال QR */
@@ -56,7 +60,7 @@
         display: none !important;
       }
       
-      /* ۴. مودال رو تمام صفحه کن و وسط قرار بده */
+      /* ۴. ثابت کردن مودال در مرکز صفحه بدون ایجاد صفحه دوم */
       #qr-modal {
         display: flex !important;
         position: fixed !important;
@@ -71,7 +75,7 @@
         margin: 0 !important;
       }
       
-      /* ۵. حذف استایل‌های شیشه‌ای و پس‌زمینه از کادر داخلی */
+      /* ۵. حذف استایل‌های شیشه‌ای از کادر */
       .modal-box {
         background: transparent !important;
         border: none !important;
@@ -80,7 +84,10 @@
         text-align: center !important;
         padding: 0 !important;
         margin: 0 !important;
-        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
       }
       
       /* ۶. مخفی کردن قاطعانه دکمه‌ها */
@@ -88,32 +95,29 @@
         display: none !important; 
       }
       
-      /* ۷. اسم تیم با فونت درشت و مشکی */
+      /* ۷. اسم تیم با فونت بزرگ و مشکی */
       #qr-title {
         color: #000 !important;
-        font-size: 35pt !important;
-        margin-bottom: 15mm !important;
+        font-size: 40pt !important;
+        margin-bottom: 20px !important;
         font-weight: bold !important;
         text-align: center !important;
       }
       
-      /* ۸. تنظیم دقیق کادر QR برای اینکه مربع بمونه و کشیده نشه */
+      /* ۸. رفع مشکل کشیدگی با object-fit */
       #qrcode {
         background: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
-        margin: 0 auto !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
+        margin: 0 !important;
       }
       
       #qrcode canvas, #qrcode img {
-        width: 120mm !important; 
-        height: 120mm !important;
-        max-width: 100% !important;
-        max-height: 100% !important;
-        object-fit: contain !important; /* این خط جادوییه که از کشیده شدن جلوگیری میکنه */
+        width: 150mm !important; /* سایز خیلی بزرگ */
+        height: 150mm !important;
+        max-width: 95vw !important;
+        max-height: 80vh !important;
+        object-fit: contain !important; /* جلوگیری از کشیدگی */
         display: block !important;
         margin: 0 auto !important;
       }
