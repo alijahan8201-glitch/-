@@ -8,11 +8,11 @@ function showToast(message, type = 'info') {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-function openTab(tabId) {
+function openTab(tabId, btnElement) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
-  event.target.classList.add('active');
+  if(btnElement) btnElement.classList.add('active');
   
   if (tabId === 'tab-participants') loadParticipants();
   if (tabId === 'tab-leaderboard') {
@@ -20,7 +20,7 @@ function openTab(tabId) {
     document.getElementById('btn-admin-lb-game').classList.remove('active');
     loadAdminLeaderboard('robot', document.getElementById('btn-admin-lb-robot'));
   }
-  if (tabId === 'tab-qr-teams') loadTeamsForQR(); // لود کردن لیست برای QR
+  if (tabId === 'tab-qr-teams') loadTeamsForQR(); 
 }
 
 let savedPassword = sessionStorage.getItem('admin_password') || '';
@@ -94,8 +94,8 @@ async function loadTeamsForQR() {
     const response = await fetch(`${API_URL}/projects`);
     const data = await response.json();
     
-    // استخراج اسامی یکتا (بدون تکرار) از فیلد team_name
-    const uniqueTeams = [...new Set(data.map(p => p.team_name).filter(t => t && t.trim() !== ''))];
+    const teamNames = data.map(p => p.team_name ? p.team_name.trim() : '').filter(t => t !== '');
+    const uniqueTeams = [...new Set(teamNames)];
     
     if (uniqueTeams.length === 0) {
       container.innerHTML = '<div>هیچ شرکت‌کننده‌ای یافت نشد.</div>';
@@ -114,50 +114,92 @@ async function loadTeamsForQR() {
 }
 
 function showTeamQR(teamName) {
-  // ساخت لینک با پارامتر team
   const siteUrl = window.location.origin + `/?team=${encodeURIComponent(teamName)}`;
-  
   document.getElementById('qr-title').textContent = teamName;
   document.getElementById('qr-modal').style.display = 'flex';
-  
   const qrContainer = document.getElementById('qrcode'); 
   qrContainer.innerHTML = '';
   
   new QRCode(qrContainer, { 
-    text: siteUrl, 
-    width: 250, 
-    height: 250, 
-    colorDark : "#0f172a", 
-    colorLight : "#ffffff", 
-    correctLevel : QRCode.CorrectLevel.H 
+    text: siteUrl, width: 250, height: 250, 
+    colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H 
   });
 }
+
+// ==================== تابع ساخت فایل Word ====================
+function downloadWord() {
+  const teamName = document.getElementById('qr-title').textContent;
+  let qrSrc = '';
+  
+  // گرفتن عکس از کانواس یا تگ img
+  const qrImg = document.querySelector('#qrcode img');
+  const qrCanvas = document.querySelector('#qrcode canvas');
+  
+  if (qrImg && qrImg.src) {
+    qrSrc = qrImg.src;
+  } else if (qrCanvas) {
+    qrSrc = qrCanvas.toDataURL("image/png");
+  } else {
+    showToast('خطا در دریافت تصویر QR', 'error');
+    return;
+  }
+
+  // ساخت ساختار HTML استاندارد برای فایل Word
+  const htmlContent = `
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head>
+        <meta charset='utf-8'>
+        <title>QR Code</title>
+        <style>
+            @page { size: A4; margin: 2cm; }
+            body { font-family: 'Tahoma', 'B Nazanin', sans-serif; text-align: center; }
+            h1 { font-size: 36pt; margin-bottom: 50px; color: #000; }
+            img { width: 400px; height: 400px; object-fit: contain; }
+        </style>
+    </head>
+    <body>
+        <h1>${teamName}</h1>
+        <br><br>
+        <img src="${qrSrc}" />
+    </body>
+    </html>
+  `;
+
+  // ایجاد و دانلود فایل
+  const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `QR_${teamName}.doc`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  showToast('فایل Word دانلود شد ✅', 'success');
+}
+// ==================================================================
 
 // ==================== جدول رده‌بندی ادمین ====================
 async function loadAdminLeaderboard(category, btnElement) {
   document.querySelectorAll('#tab-leaderboard .filter-btn').forEach(btn => btn.classList.remove('active'));
   if (btnElement) btnElement.classList.add('active');
-
   const tbody = document.getElementById('leaderboard-body');
   tbody.innerHTML = '<tr><td colspan="5">در حال بارگذاری...</td></tr>';
   
   try {
     const response = await fetch(`${API_URL}/projects`);
     const data = await response.json(); 
-    
     let filtered = data.filter(p => p.category === category);
     
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5">هیچ پروژه‌ای در بخش ${category === 'robot' ? 'ربات‌ها' : 'بازی‌ها'} وجود ندارد.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5">هیچ پروژه‌ای در این بخش وجود ندارد.</td></tr>`;
       return;
     }
 
     tbody.innerHTML = filtered.map((p, index) => {
       let medal = index + 1;
-      if (index === 0) medal = '🥇 ۱'; 
-      else if (index === 1) medal = '🥈 ۲'; 
-      else if (index === 2) medal = '🥉 ۳';
-      
+      if (index === 0) medal = '🥇 ۱'; else if (index === 1) medal = '🥈 ۲'; else if (index === 2) medal = '🥉 ۳';
       return `<tr style="${index < 3 ? 'background: rgba(245, 158, 11, 0.15);' : ''}">
         <td style="font-size: 1.3rem; font-weight: bold;">${medal}</td>
         <td style="color:#fff; font-weight: bold; font-size:1.1rem;">${p.title}</td>
