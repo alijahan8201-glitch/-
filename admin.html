@@ -57,7 +57,14 @@
           <div class="form-group"><label>رمز عبور ادمین</label><input type="password" id="password" class="form-input" required placeholder="رمز ادمین"></div>
           <div class="form-group"><label>عنوان پروژه</label><input type="text" id="title" class="form-input" required placeholder="مثلاً: ربات مسیریاب"></div>
           <div class="form-group"><label>نام تیم / سازنده</label><input type="text" id="team" class="form-input" placeholder="مثلاً: پوریا جهانشاهی"></div>
-          <div class="form-group"><label>دسته بندی اصلی</label><select id="category" class="form-input" style="background: #1e293b;"><option value="robot">🤖 ربات</option><option value="game">🎮 بازی</option></select></div>
+          <div class="form-group">
+            <label>دسته بندی اصلی</label>
+            <select id="category" class="form-input" style="background: #1e293b;">
+              <option value="robot">🤖 ربات</option>
+              <option value="python">🐍 بازی پایتون</option>
+              <option value="mblock">🧩 بازی mBlock</option>
+            </select>
+          </div>
           <div class="form-group full-width"><label>آیا این پروژه متعلق به سازنده سایت است؟</label><select id="is_creator" class="form-input" style="background: #1e293b; color: #fbbf24; font-weight: bold;"><option value="0">خیر</option><option value="1">بله (نمایش تاج طلایی)</option></select></div>
           <div class="form-group full-width"><label>توضیحات کامل</label><textarea id="description" class="form-input" required placeholder="توضیح کامل..." style="height: 120px; resize: none;"></textarea></div>
           <div class="form-group"><label>انتخاب عکس (پیشنهادی)</label><input type="file" id="image_file" accept="image/*" class="form-input" style="padding: 12px;"></div>
@@ -71,9 +78,10 @@
 
     <div id="tab-leaderboard" class="tab-content">
       <h3 style="margin-bottom: 20px; color: #fff;">🏆 رتبه‌بندی</h3>
-      <div class="filter-tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
+      <div class="filter-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
         <button class="filter-btn active" id="btn-admin-lb-robot" onclick="loadAdminLeaderboard('robot', this)">🤖 ربات‌ها</button>
-        <button class="filter-btn" id="btn-admin-lb-game" onclick="loadAdminLeaderboard('game', this)">🎮 بازی‌ها</button>
+        <button class="filter-btn" id="btn-admin-lb-python" onclick="loadAdminLeaderboard('python', this)">🐍 بازی پایتون</button>
+        <button class="filter-btn" id="btn-admin-lb-mblock" onclick="loadAdminLeaderboard('mblock', this)">🧩 بازی mBlock</button>
       </div>
       <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 20px;"><table class="participant-table" id="leaderboard-table"><thead><tr><th>رتبه</th><th>پروژه</th><th>تیم</th><th>میانگین</th><th>تعداد رأی</th></tr></thead><tbody id="leaderboard-body"><tr><td colspan="5">در حال بارگذاری...</td></tr></tbody></table></div>
     </div>
@@ -116,7 +124,14 @@
           <div class="form-group"><label>رمز ادمین</label><input type="password" id="edit-password" class="form-input" required></div>
           <div class="form-group"><label>عنوان پروژه</label><input type="text" id="edit-title" class="form-input" required></div>
           <div class="form-group"><label>نام تیم</label><input type="text" id="edit-team" class="form-input"></div>
-          <div class="form-group"><label>دسته بندی</label><select id="edit-category" class="form-input" style="background: #1e293b;"><option value="robot">🤖 ربات</option><option value="game">🎮 بازی</option></select></div>
+          <div class="form-group">
+            <label>دسته بندی</label>
+            <select id="edit-category" class="form-input" style="background: #1e293b;">
+              <option value="robot">🤖 ربات</option>
+              <option value="python">🐍 بازی پایتون</option>
+              <option value="mblock">🧩 بازی mBlock</option>
+            </select>
+          </div>
           <div class="form-group full-width"><label>سازنده سایت؟</label><select id="edit-is_creator" class="form-input" style="background: #1e293b; color: #fbbf24; font-weight: bold;"><option value="0">خیر</option><option value="1">بله (تاج طلایی)</option></select></div>
           <div class="form-group full-width"><label>توضیحات</label><textarea id="edit-description" class="form-input" required style="height: 100px; resize:none;"></textarea></div>
           <div class="form-group"><label>عکس جدید</label><input type="file" id="edit-image-file" accept="image/*" class="form-input" style="padding: 12px;"></div>
@@ -132,8 +147,6 @@
   </div>
 
   <div id="toast" class="toast"></div>
-  
-  <!-- کتابخانه‌های لازم -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
   <script src="admin.js"></script>
