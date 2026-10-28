@@ -37,93 +37,6 @@
     #qrcode { display: flex; justify-content: center; margin: 25px 0; background: white; padding: 25px; border-radius: 20px; width: fit-content; margin-left: auto; margin-right: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
     @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .admin-container { padding: 20px; } }
-
-    /* ==================== تنظیمات نهایی پرینت (دقیقاً یک صفحه و یک QR) ==================== */
-    @media print {
-      /* تنظیم کاغذ A4 بدون حاشیه */
-      @page { 
-        size: A4 portrait; 
-        margin: 0; 
-      }
-      
-      /* مخفی کردن کل صفحه و جلوگیری از اسکرول */
-      html, body {
-        background: white !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        height: 100vh !important;
-        overflow: hidden !important;
-      }
-      
-      /* مخفی کردن همه چیز به جز مودال QR */
-      body > *:not(#qr-modal) {
-        display: none !important;
-      }
-      
-      /* تنظیم مودال برای قرارگیری دقیق در مرکز */
-      #qr-modal {
-        display: flex !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        background: white !important;
-        justify-content: center !important;
-        align-items: center !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-      
-      .modal-box {
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        color: black !important;
-        text-align: center !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        width: 100% !important;
-      }
-      
-      /* مخفی کردن دکمه‌ها */
-      .print-btn { 
-        display: none !important; 
-      }
-      
-      /* اسم شخص */
-      #qr-title {
-        color: #000 !important;
-        font-size: 35pt !important;
-        margin-bottom: 15mm !important;
-        font-weight: bold !important;
-        text-align: center !important;
-      }
-      
-      #qrcode {
-        background: transparent !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-      
-      /* 🚨 راه‌حل اصلی: مخفی کردن کانواس و نمایش فقط عکس 🚨 */
-      #qrcode canvas {
-        display: none !important; /* کانواس رو کلاً مخفی کن */
-      }
-      #qrcode img {
-        display: block !important; /* فقط عکس رو نشون بده */
-        width: 100mm !important; 
-        height: 100mm !important;
-        max-width: 100% !important;
-        object-fit: contain !important; 
-        margin: 0 auto !important;
-      }
-    }
   </style>
 </head>
 <body>
@@ -183,12 +96,13 @@
     <div style="text-align: center; margin-top:40px;"><a href="index.html" style="color: #a78bfa; text-decoration: none; font-weight: bold;">← بازگشت به سایت</a></div>
   </div>
 
+  <!-- مودال QR با دکمه دانلود Word -->
   <div id="qr-modal" class="custom-modal">
     <div class="modal-box text-center">
-      <h2 id="qr-title"></h2>
+      <h2 id="qr-title" style="color: #60a5fa; margin-bottom: 15px; font-size: 1.5rem;"></h2>
       <div id="qrcode"></div>
-      <div style="display:flex; justify-content:center; gap:15px; margin-top:25px;">
-        <button class="print-btn" onclick="window.print()">🖨️ پرینت</button>
+      <div style="display:flex; justify-content:center; gap:15px; margin-top:25px; flex-wrap: wrap;">
+        <button class="print-btn" style="background:#3b82f6;" onclick="downloadWord()">📄 دانلود Word</button>
         <button class="print-btn" style="background:#ef4444;" onclick="document.getElementById('qr-modal').style.display='none'">بستن</button>
       </div>
     </div>
