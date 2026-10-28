@@ -40,48 +40,77 @@
 
     /* ==================== تنظیمات مخصوص پرینت QR Code ==================== */
     @media print {
-      /* مخفی کردن تمام اجزای صفحه */
+      /* ۱. سفید کردن کل پس‌زمینه صفحه */
+      html, body {
+        background: white !important;
+        background-color: white !important;
+        color: black !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100% !important;
+      }
+      
+      /* ۲. مخفی کردن تمام اجزای صفحه */
       body * {
         visibility: hidden;
       }
-      /* فقط و فقط کادر QR و محتوای داخلش رو نشون بده */
+      
+      /* ۳. فقط و فقط کادر QR و محتوای داخلش رو قابل مشاهده کن */
       #qr-modal, #qr-modal * {
         visibility: visible;
       }
-      /* قرار دادن کادر QR در بالای صفحه و سفید کردن پس‌زمینه */
+      
+      /* ۴. قرار دادن کادر QR در مرکز صفحه با فاصله از بالا */
       #qr-modal {
         position: absolute;
         left: 0;
         top: 0;
         width: 100%;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
         background: transparent !important;
+        display: block !important;
+        padding-top: 30mm; /* فاصله از بالا */
       }
+      
+      /* ۵. استایل دادن به کادر برای چاپ تمیز (حذف رنگ‌ها و سایه‌ها) */
       .modal-box {
-        box-shadow: none !important;
+        background: transparent !important;
         border: none !important;
-        background: white !important;
+        box-shadow: none !important;
         color: black !important;
-        padding: 0;
-      }
-      /* مخفی کردن دکمه‌های پرینت و بستن */
-      .print-btn, .close-modal {
-        display: none !important;
-      }
-      /* حذف حاشیه و سایه از خود QR Code */
-      #qrcode {
-        box-shadow: none !important;
-        border: none !important;
-        margin: 20px auto;
-      }
-      /* تنظیم رنگ و فونت اسم تیم برای چاپ */
-      #qr-title {
-        font-size: 24px !important;
-        color: #000 !important;
         text-align: center;
-        margin-bottom: 10px;
+        width: 100%;
+        padding: 0 !important;
+      }
+      
+      /* ۶. استایل اسم تیم */
+      #qr-title {
+        color: #000 !important;
+        font-size: 28pt !important; /* سایز بزرگ برای چاپ */
+        margin-bottom: 15mm !important;
+        font-weight: bold;
+        text-align: center;
+      }
+      
+      /* ۷. استایل خود QR Code */
+      #qrcode {
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 auto !important;
+        display: flex;
+        justify-content: center;
+      }
+      
+      #qrcode img, #qrcode canvas {
+        width: 120mm !important; /* سایز ۱۲ سانتی‌متر */
+        height: 120mm !important;
+        display: block;
+        margin: 0 auto;
+      }
+      
+      /* ۸. مخفی کردن دکمه‌ها */
+      .print-btn {
+        display: none !important;
       }
     }
   </style>
