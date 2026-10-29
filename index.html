@@ -3,141 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>نمایشگاه رباتیک و هوش مصنوعی</title>
+  <title>پایان رأی‌گیری | نمایشگاه رباتیک</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
-<body>
-  <div class="bg-shapes"></div>
-
-  <div id="welcome-screen" class="glass-container">
-    <img src="logo.png" alt="لوگو آموزشگاه" class="main-logo">
-    <h1>نمایشگاه رباتیک و هوش مصنوعی</h1>
-    <p>به بزرگترین رویداد رباتیک خوش آمدید. برای شرکت در رأی‌گیری و قرعه‌کشی، لطفاً وارد شوید.</p>
-    <ul class="welcome-list">
-      <li>🌟 به هر پروژه از ۱ تا ۱۰ امتیاز دهید.</li>
-      <li>🎁 با ثبت اطلاعات، شانس خود را برای قرعه‌کشی ویژه امتحان کنید.</li>
-      <li>🎬 با کلیک روی هر پروژه، ویدیو و توضیحات آن را ببینید.</li>
-    </ul>
-    <button id="to-info-btn" class="btn-primary">ورود به نمایشگاه</button>
-  </div>
-
-  <div id="info-screen" class="glass-container" style="display: none;">
-    <img src="logo.png" alt="لوگو آموزشگاه" class="small-logo">
-    <h1>📝 ثبت اطلاعات</h1>
-    <p>لطفاً اطلاعات خود را برای شرکت در قرعه‌کشی وارد کنید.</p>
-    <div class="form-group"><input type="text" id="reg-firstname" class="form-input" placeholder="نام" required></div>
-    <div class="form-group"><input type="text" id="reg-lastname" class="form-input" placeholder="نام خانوادگی" required></div>
-    <div class="form-group"><input type="tel" id="reg-phone" class="form-input" placeholder="شماره موبایل" required></div>
-    <button id="start-btn" class="btn-primary">شروع رأی‌گیری</button>
-  </div>
-
-  <div id="main-screen" class="main-container" style="display: none;">
-    <header class="main-header">
-      <img src="logo.png" alt="لوگو آموزشگاه" class="header-logo">
-      <h2>پروژه‌های نمایشگاه</h2>
-      <p>برای مشاهده جزئیات و امتیازدهی، روی هر کارت کلیک کنید</p>
-    </header>
-
-    <div class="dev-banner">
-      <div class="dev-banner-img-wrapper">
-        <img src="developer.jpg" alt="طراح و سازنده سایت" class="dev-banner-img" onerror="this.src='logo.png'">
-      </div>
-      <div class="dev-banner-info">
-        <h3>👨‍💻 طراح و توسعه‌دهنده سامانه</h3>
-        <p>این سامانه با تلاش و کدنویسی اختصاصی <strong>پوریا جهانشاهی</strong> طراحی شده است.</p>
-        <button class="filter-btn creator-btn" onclick="filterProjects('creator', this)">👑 مشاهده پروژه سازنده</button>
-      </div>
-    </div>
-
-    <div class="filter-tabs">
-      <button class="filter-btn active" onclick="filterProjects('all', this)">نمایش همه</button>
-      <button class="filter-btn" onclick="filterProjects('robot', this)">🤖 ربات‌ها</button>
-      <button class="filter-btn" onclick="filterProjects('python', this)">🐍 بازی پایتون</button>
-      <button class="filter-btn" onclick="filterProjects('mblock', this)">🧩 بازی mBlock</button>
-      <button class="filter-btn leaderboard-btn" onclick="showLeaderboard('robot', this)">🏆 جدول رده‌بندی</button>
-    </div>
-
-    <div id="projects" class="projects-grid"></div>
-
-    <div id="leaderboard-container" style="display: none;">
-      <h2 style="text-align: center; color: #fbbf24; font-size: 2rem; margin-bottom: 20px; text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);">🏆 جدول رده‌بندی</h2>
-      
-      <div class="filter-tabs" style="margin-bottom: 40px;">
-        <button class="filter-btn active" id="btn-lb-robot" onclick="loadLeaderboard('robot', this)">🤖 ربات‌ها</button>
-        <button class="filter-btn" id="btn-lb-python" onclick="loadLeaderboard('python', this)">🐍 بازی پایتون</button>
-        <button class="filter-btn" id="btn-lb-mblock" onclick="loadLeaderboard('mblock', this)">🧩 بازی mBlock</button>
-      </div>
-
-      <div class="podium-wrapper" id="podium-grid"></div>
-
-      <div class="leaderboard-table-wrapper" style="margin-top: 50px;">
-        <table class="participant-table">
-          <thead><tr><th>رتبه</th><th>پروژه</th><th>تیم</th><th>میانگین امتیاز</th><th>تعداد رأی</th></tr></thead>
-          <tbody id="leaderboard-body-main"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <footer class="developer-footer">
-      <div class="dev-card">
-        <div class="dev-image-wrapper">
-          <img src="developer.jpg" alt="پوریا جهانشاهی - طراح و کدنویس" class="dev-image" onerror="this.src='logo.png'">
-        </div>
-        <div class="dev-info">
-          <h3>👨‍💻 طراحی و توسعه سیستم</h3>
-          <p>این سامانه با تلاش و کدنویسی اختصاصی <strong>پوریا جهانشاهی</strong> برای نمایشگاه رباتیک آموزشگاه ره‌نشان طراحی و پیاده‌سازی شده است.</p>
-          <p style="margin-top: 10px; font-size: 0.85rem; color: #8b5cf6;">با همکاری و حمایت مدیریت محترم آموزشگاه، جناب آقای سالاری</p>
-        </div>
-      </div>
-    </footer>
-  </div>
-
-  <div id="project-modal" class="modal-overlay">
-    <div class="modal-content">
-      <button class="close-modal" onclick="closeModal()">&times;</button>
-      <h2 id="modal-title"></h2>
-      <div id="modal-video-container"></div>
-      <p id="modal-desc"></p>
-      <div id="rating-section" class="rating-section">
-        <h3>امتیاز خود را انتخاب کنید (۱ تا ۱۰)</h3>
-        <div class="rating-buttons">
-          <button class="rate-btn" onclick="selectScore(1)">۱</button>
-          <button class="rate-btn" onclick="selectScore(2)">۲</button>
-          <button class="rate-btn" onclick="selectScore(3)">۳</button>
-          <button class="rate-btn" onclick="selectScore(4)">۴</button>
-          <button class="rate-btn" onclick="selectScore(5)">۵</button>
-          <button class="rate-btn" onclick="selectScore(6)">۶</button>
-          <button class="rate-btn" onclick="selectScore(7)">۷</button>
-          <button class="rate-btn" onclick="selectScore(8)">۸</button>
-          <button class="rate-btn" onclick="selectScore(9)">۹</button>
-          <button class="rate-btn" onclick="selectScore(10)">۱۰</button>
-        </div>
-        <button id="submit-rating-btn" class="btn-primary" onclick="submitRating()" disabled>ثبت امتیاز</button>
-      </div>
-      <div id="already-rated-msg" style="display: none;">شما قبلاً به این پروژه امتیاز داده‌اید. ممنون! ✅</div>
+<body style="background-color: #0f172a; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Vazirmatn', sans-serif;">
+  
+  <div style="text-align: center; padding: 40px; background: rgba(30, 41, 59, 0.6); border-radius: 32px; border: 1px solid rgba(139, 92, 246, 0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.5); max-width: 500px; width: 90%;">
+    <div style="font-size: 5rem; margin-bottom: 20px;">🏆</div>
+    <h1 style="font-size: 2rem; color: #a78bfa; margin-bottom: 15px; font-weight: 800;">زمان رأی‌گیری به پایان رسید</h1>
+    <p style="color: #cbd5e1; font-size: 1.1rem; line-height: 1.8; margin-bottom: 30px;">
+      از تمامی شرکت‌کنندگان و بازدیدکنندگان محترم نمایشگاه رباتیک سپاسگزاریم.
+    </p>
+    <div style="background: rgba(139, 92, 246, 0.1); padding: 15px; border-radius: 16px; border: 1px solid rgba(139, 92, 246, 0.2);">
+      <p style="color: #a78bfa; font-size: 1rem; margin: 0;">
+        نتایج نهایی به زودی توسط مدیریت آموزشگاه اعلام خواهد شد.
+      </p>
     </div>
   </div>
 
-  <div id="thank-you-modal" class="thank-you-overlay">
-    <div class="thank-you-content">
-      <div class="star-icon">🌟</div>
-      <h2>✅ رأی ارزشمند شما ثبت شد</h2>
-      <p class="thanks-text">از حمایت شما از خلاقیت و تلاش ربوآموزان ره‌نشان سپاسگزاریم. 🌹</p>
-      <div class="lottery-badge">🎁 یک شانس قرعه‌کشی به شما اضافه شد</div>
-      <div class="social-section">
-        <p>📱 برای دیدن پروژه‌های جذاب ربوآموزان و اطلاع از اخبار و دوره‌های آموزشی، صفحه اینستاگرام ما را دنبال کنید.</p>
-        <a href="https://www.instagram.com/rahneshan.robotics" target="_blank" class="insta-btn">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"></path></svg>
-          دنبال کردن در اینستاگرام
-        </a>
-      </div>
-      <p class="footer-note">از همراهی شما متشکریم 🤖✨</p>
-      <button onclick="closeThankYouModal()" class="close-thanks-btn">بستن و ادامه</button>
-    </div>
-  </div>
-
-  <div id="toast" class="toast"></div>
-  <script src="main.js"></script>
 </body>
 </html>
