@@ -34,15 +34,13 @@ async function initDB() {
             UNIQUE(project_id, voter_id)
         )`);
 
-        // آپدیت ساختار دیتابیس برای دسته‌بندی‌های جدید
+        // آپدیت ساختار دیتابیس
         try {
             await db.execute("ALTER TABLE projects ADD COLUMN category TEXT DEFAULT 'robot'");
         } catch (e) {}
         try {
             await db.execute("ALTER TABLE projects ADD COLUMN is_creator INTEGER DEFAULT 0");
         } catch (e) {}
-
-        // انتقال پروژه‌های قبلی دسته بازی به بازی پایتون
         try {
             await db.execute("UPDATE projects SET category = 'python' WHERE category = 'game'");
         } catch (e) {}
@@ -91,6 +89,24 @@ app.post('/api/rate', async (req, res) => {
         res.json({ success: true, message: "امتیاز ثبت شد!" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
+// ==================== بخش جدید: رأی نامحدود برای ادمین ====================
+app.post('/api/admin/unlimited-vote', async (req, res) => {
+    const { password, project_id, score } = req.body;
+    
+    if (password !== '123456') return res.json({ success: false, message: "رمز عبور اشتباه است" });
+
+    try {
+        await db.execute({ 
+            sql: "UPDATE projects SET total_score = total_score + ?, vote_count = vote_count + 1 WHERE id = ?", 
+            args: [score, project_id] 
+        });
+        res.json({ success: true, message: "رأی ثبت شد!" });
+    } catch (err) { 
+        res.status(500).json({ error: err.message }); 
+    }
+});
+// ==================================================================
 
 app.post('/api/admin/add', upload.single('image'), async (req, res) => {
     const { password, title, description, team_name, video_url, image_url_text, category, is_creator } = req.body;
