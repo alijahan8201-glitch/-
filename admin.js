@@ -22,6 +22,7 @@ function openTab(tabId, btnElement) {
     loadAdminLeaderboard('robot', document.getElementById('btn-admin-lb-robot'));
   }
   if (tabId === 'tab-qr-teams') loadTeamsForQR(); 
+  if (tabId === 'tab-unlimited-vote') loadUnlimitedVoteList();
 }
 
 let savedPassword = sessionStorage.getItem('admin_password') || '';
@@ -86,6 +87,7 @@ async function loadProjectsList() {
   } catch (e) { container.innerHTML = '<div style="color:#ef4444;">خطا در بارگذاری</div>'; }
 }
 
+// ==================== تب QR شرکت‌کننده‌ها ====================
 async function loadTeamsForQR() {
   const container = document.getElementById('teams-list');
   container.innerHTML = '<div>در حال بارگذاری...</div>';
@@ -126,6 +128,7 @@ function showTeamQR(teamName) {
   });
 }
 
+// ==================== دانلود فایل Word ====================
 async function downloadWord() {
   const teamName = document.getElementById('qr-title').textContent;
   const qrImg = document.querySelector('#qrcode img');
@@ -186,6 +189,7 @@ async function downloadWord() {
   } catch (error) { showToast('خطا در ساخت فایل Word', 'error'); }
 }
 
+// ==================== جدول رده‌بندی ادمین ====================
 async function loadAdminLeaderboard(category, btnElement) {
   document.querySelectorAll('#tab-leaderboard .filter-btn').forEach(btn => btn.classList.remove('active'));
   if (btnElement) btnElement.classList.add('active');
@@ -216,6 +220,7 @@ async function loadAdminLeaderboard(category, btnElement) {
   } catch (e) { tbody.innerHTML = '<tr><td colspan="5" style="color:red;">خطا</td></tr>'; }
 }
 
+// ==================== ویرایش و حذف ====================
 function openEditModal(projectId) {
   const project = currentProjects.find(p => p.id === projectId);
   if (!project) return;
@@ -279,6 +284,7 @@ async function deleteProject(projectId) {
   } catch (err) { showToast('خطا', 'error'); }
 }
 
+// ==================== شرکت‌کننده‌ها و قرعه‌کشی ====================
 async function loadParticipants() {
   const tbody = document.getElementById('participants-body');
   tbody.innerHTML = '<tr><td colspan="5">در حال بارگذاری...</td></tr>';
@@ -308,6 +314,81 @@ async function fetchWinner() {
   } catch (e) { nameDisplay.textContent = 'خطا'; showToast('خطا', 'error'); }
   btn.disabled = false; btn.textContent = '🎲 قرعه‌کشی مجدد';
 }
+
+// ==================== منطق رأی‌گیری ویژه ====================
+async function loadUnlimitedVoteList() {
+  const container = document.getElementById('unlimited-projects-list');
+  container.innerHTML = '<div style="color: #fff;">در حال بارگذاری...</div>';
+  
+  try {
+    const response = await fetch(`${API_URL}/projects`);
+    const data = await response.json();
+    
+    if (data.length === 0) {
+      container.innerHTML = '<div style="color: #fff;">هیچ پروژه‌ای یافت نشد.</div>';
+      return;
+    }
+
+    container.innerHTML = data.map(p => `
+      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); gap: 10px; flex-wrap: wrap;">
+        <div style="color: #fff;">
+          <strong style="font-size: 1.1rem;">${p.title}</strong>
+          <span style="color: #a78bfa; margin-right: 10px;">(تیم: ${p.team_name || '-'})</span>
+          <br>
+          <span style="color: #fbbf24; font-size: 0.9rem;">امتیاز فعلی: ${p.avg_score} | تعداد رأی: ${p.vote_count}</span>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <select id="score-${p.id}" class="form-input" style="width: 80px; padding: 8px; background: #1e293b; color: white;">
+            <option value="10">۱۰</option>
+            <option value="9">۹</option>
+            <option value="8">۸</option>
+            <option value="7">۷</option>
+            <option value="6">۶</option>
+            <option value="5">۵</option>
+            <option value="4">۴</option>
+            <option value="3">۳</option>
+            <option value="2">۲</option>
+            <option value="1">۱</option>
+          </select>
+          <button onclick="submitUnlimitedVote(${p.id})" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit;">
+            ثبت رأی
+          </button>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    container.innerHTML = '<div style="color: #ef4444;">خطا در بارگذاری لیست</div>';
+  }
+}
+
+async function submitUnlimitedVote(projectId) {
+  const pass = document.getElementById('unlimited-pass').value;
+  const score = document.getElementById(`score-${projectId}`).value;
+
+  if (!pass) {
+    showToast('لطفاً رمز عبور این بخش را وارد کنید', 'error');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/admin/unlimited-vote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pass, project_id: projectId, score: parseInt(score) })
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      showToast('رأی با موفقیت ثبت شد ✅', 'success');
+      loadUnlimitedVoteList(); // آپدیت لیست برای نمایش امتیاز جدید
+    } else {
+      showToast(data.message, 'error');
+    }
+  } catch (err) {
+    showToast('خطا در ارتباط با سرور', 'error');
+  }
+}
+// ==================================================================
 
 if (savedPassword) document.getElementById('password').value = savedPassword;
 loadProjectsList();
