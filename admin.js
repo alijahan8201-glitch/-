@@ -315,49 +315,58 @@ async function fetchWinner() {
   btn.disabled = false; btn.textContent = '🎲 قرعه‌کشی مجدد';
 }
 
-// ==================== منطق رأی‌گیری ویژه ====================
+// ==================== منطق رأی‌گیری ویژه (با کارت) ====================
 async function loadUnlimitedVoteList() {
   const container = document.getElementById('unlimited-projects-list');
-  container.innerHTML = '<div style="color: #fff;">در حال بارگذاری...</div>';
+  container.innerHTML = '<div style="color: #fff; grid-column: 1/-1;">در حال بارگذاری...</div>';
   
   try {
     const response = await fetch(`${API_URL}/projects`);
     const data = await response.json();
     
     if (data.length === 0) {
-      container.innerHTML = '<div style="color: #fff;">هیچ پروژه‌ای یافت نشد.</div>';
+      container.innerHTML = '<div style="color: #fff; grid-column: 1/-1;">هیچ پروژه‌ای یافت نشد.</div>';
       return;
     }
 
-    container.innerHTML = data.map(p => `
-      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); gap: 10px; flex-wrap: wrap;">
-        <div style="color: #fff;">
-          <strong style="font-size: 1.1rem;">${p.title}</strong>
-          <span style="color: #a78bfa; margin-right: 10px;">(تیم: ${p.team_name || '-'})</span>
-          <br>
-          <span style="color: #fbbf24; font-size: 0.9rem;">امتیاز فعلی: ${p.avg_score} | تعداد رأی: ${p.vote_count}</span>
+    // ساخت کارت‌ها با ظاهری شبیه به صفحه اصلی
+    container.innerHTML = data.map(p => {
+      const imgSrc = p.image_url ? p.image_url : null;
+      const isCreator = p.is_creator == 1 ? 'creator-card' : '';
+      const crownIcon = p.is_creator == 1 ? '<span class="crown-icon">👑</span>' : '';
+
+      return `
+        <div class="project-card ${isCreator}" style="cursor: default;">
+          ${crownIcon}
+          ${imgSrc ? `<img src="${imgSrc}" class="project-image" onerror="this.style.display='none';">` : `<div class="project-image" style="font-size:4rem; display:flex; align-items:center; justify-content:center;">🤖</div>`}
+          <div class="project-body">
+            <h3 class="project-title">${p.title}</h3>
+            <div class="project-team">👥 ${p.team_name || 'تیم ناشناس'}</div>
+            <div class="project-score">⭐ امتیاز: ${p.avg_score} از ۱۰ (${p.vote_count} رأی)</div>
+            
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+              <select id="score-${p.id}" class="form-input" style="width: 80px; padding: 8px; background: #1e293b; color: white;">
+                <option value="10">۱۰</option>
+                <option value="9">۹</option>
+                <option value="8">۸</option>
+                <option value="7">۷</option>
+                <option value="6">۶</option>
+                <option value="5">۵</option>
+                <option value="4">۴</option>
+                <option value="3">۳</option>
+                <option value="2">۲</option>
+                <option value="1">۱</option>
+              </select>
+              <button onclick="submitUnlimitedVote(${p.id})" style="flex: 1; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit;">
+                ثبت رأی ✅
+              </button>
+            </div>
+          </div>
         </div>
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-          <select id="score-${p.id}" class="form-input" style="width: 80px; padding: 8px; background: #1e293b; color: white;">
-            <option value="10">۱۰</option>
-            <option value="9">۹</option>
-            <option value="8">۸</option>
-            <option value="7">۷</option>
-            <option value="6">۶</option>
-            <option value="5">۵</option>
-            <option value="4">۴</option>
-            <option value="3">۳</option>
-            <option value="2">۲</option>
-            <option value="1">۱</option>
-          </select>
-          <button onclick="submitUnlimitedVote(${p.id})" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit;">
-            ثبت رأی
-          </button>
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   } catch (e) {
-    container.innerHTML = '<div style="color: #ef4444;">خطا در بارگذاری لیست</div>';
+    container.innerHTML = '<div style="color: #ef4444; grid-column: 1/-1;">خطا در بارگذاری لیست</div>';
   }
 }
 
