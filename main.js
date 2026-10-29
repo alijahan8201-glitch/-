@@ -1,3 +1,5 @@
+document.body.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#0f172a; color:white; font-size:2rem; text-align:center; font-family:sans-serif;">⏳ زمان رأی‌گیری به پایان رسیده است.</div>';
+
 const API_URL = '/api';
 
 function getVoterId() {
