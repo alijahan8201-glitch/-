@@ -34,7 +34,6 @@ async function initDB() {
             UNIQUE(project_id, voter_id)
         )`);
 
-        // آپدیت ساختار دیتابیس
         try {
             await db.execute("ALTER TABLE projects ADD COLUMN category TEXT DEFAULT 'robot'");
         } catch (e) {}
@@ -90,12 +89,10 @@ app.post('/api/rate', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ==================== بخش جدید: رأی نامحدود برای ادمین ====================
+// ==================== رأی نامحدود برای ادمین ====================
 app.post('/api/admin/unlimited-vote', async (req, res) => {
     const { password, project_id, score } = req.body;
-    
     if (password !== '123456') return res.json({ success: false, message: "رمز عبور اشتباه است" });
-
     try {
         await db.execute({ 
             sql: "UPDATE projects SET total_score = total_score + ?, vote_count = vote_count + 1 WHERE id = ?", 
@@ -106,8 +103,21 @@ app.post('/api/admin/unlimited-vote', async (req, res) => {
         res.status(500).json({ error: err.message }); 
     }
 });
-// ==================================================================
 
+// ==================== صفر کردن رأی‌ها ====================
+app.post('/api/admin/reset-votes', async (req, res) => {
+    const { password } = req.body;
+    if (password !== '123456') return res.json({ success: false, message: "رمز عبور اشتباه است" });
+    try {
+        await db.execute("UPDATE projects SET total_score = 0, vote_count = 0");
+        await db.execute("DELETE FROM votes");
+        res.json({ success: true, message: "تمام رأی‌ها و امتیازها صفر شدند!" });
+    } catch (err) { 
+        res.status(500).json({ error: err.message }); 
+    }
+});
+
+// ==================== بقیه APIها ====================
 app.post('/api/admin/add', upload.single('image'), async (req, res) => {
     const { password, title, description, team_name, video_url, image_url_text, category, is_creator } = req.body;
     if (password !== '123456') return res.json({ success: false, message: "رمز اشتباه است" });
