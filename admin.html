@@ -102,18 +102,18 @@
       <div class="draw-box"><h3 style="color: #fff; font-size: 1.6rem;">قرعه‌کشی ویژه</h3><div id="winner-display">-</div><div id="winner-phone"></div><button class="btn-primary" onclick="startDraw()" id="draw-btn" style="max-width: 300px; margin: 0 auto;">🎲 شروع قرعه‌کشی</button></div>
     </div>
 
-    <!-- ==================== تب رأی‌گیری ویژه ==================== -->
+    <!-- ==================== تب رأی‌گیری ویژه (طراحی جدید کارتی) ==================== -->
     <div id="tab-unlimited-vote" class="tab-content">
-      <h3 style="margin-bottom: 20px; color: #fff;">🗳️ پنل رأی‌گیری ویژه</h3>
-      <p style="color: #94a3b8; margin-bottom: 20px;">این بخش برای مسئولین و کسانی است که نمی‌خواهند شماره‌شان ثبت شود. محدودیت رأی ندارد.</p>
+      <h3 style="margin-bottom: 10px; color: #fff; text-align: center;">🗳️ پنل رأی‌گیری ویژه</h3>
+      <p style="color: #94a3b8; margin-bottom: 30px; text-align: center;">این بخش برای مسئولین است. رمز عبور را وارد کرده و به هر تعداد که خواستید رأی دهید.</p>
       
-      <div class="form-group" style="max-width: 300px; margin: 0 auto 30px auto;">
-        <label style="color: #fff;">رمز عبور این بخش:</label>
-        <input type="password" id="unlimited-pass" class="form-input" placeholder="رمز را وارد کنید">
+      <div class="form-group" style="max-width: 300px; margin: 0 auto 40px auto;">
+        <label style="color: #fff; text-align: center; display: block;">رمز عبور این بخش:</label>
+        <input type="password" id="unlimited-pass" class="form-input" placeholder="رمز ادمین را وارد کنید">
       </div>
 
-      <div id="unlimited-projects-list" style="display: grid; grid-template-columns: 1fr; gap: 15px;">
-        <!-- لیست پروژه‌ها اینجا لود میشه -->
+      <div id="unlimited-projects-list" class="projects-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+        <!-- کارت‌های پروژه اینجا لود میشن -->
       </div>
     </div>
     <!-- ======================================================== -->
