@@ -49,6 +49,7 @@
       <button class="tab-btn" onclick="openTab('tab-participants', this)">👥 شرکت‌کننده‌ها</button>
       <button class="tab-btn" onclick="openTab('tab-qr-teams', this)">📱 QR شرکت‌کننده‌ها</button>
       <button class="tab-btn" onclick="openTab('tab-draw', this)">🎁 قرعه‌کشی</button>
+      <button class="tab-btn" onclick="openTab('tab-unlimited-vote', this)">🗳️ رأی‌گیری ویژه</button>
     </div>
 
     <div id="tab-add" class="tab-content active">
@@ -100,6 +101,22 @@
     <div id="tab-draw" class="tab-content">
       <div class="draw-box"><h3 style="color: #fff; font-size: 1.6rem;">قرعه‌کشی ویژه</h3><div id="winner-display">-</div><div id="winner-phone"></div><button class="btn-primary" onclick="startDraw()" id="draw-btn" style="max-width: 300px; margin: 0 auto;">🎲 شروع قرعه‌کشی</button></div>
     </div>
+
+    <!-- ==================== تب رأی‌گیری ویژه ==================== -->
+    <div id="tab-unlimited-vote" class="tab-content">
+      <h3 style="margin-bottom: 20px; color: #fff;">🗳️ پنل رأی‌گیری ویژه</h3>
+      <p style="color: #94a3b8; margin-bottom: 20px;">این بخش برای مسئولین و کسانی است که نمی‌خواهند شماره‌شان ثبت شود. محدودیت رأی ندارد.</p>
+      
+      <div class="form-group" style="max-width: 300px; margin: 0 auto 30px auto;">
+        <label style="color: #fff;">رمز عبور این بخش:</label>
+        <input type="password" id="unlimited-pass" class="form-input" placeholder="رمز را وارد کنید">
+      </div>
+
+      <div id="unlimited-projects-list" style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+        <!-- لیست پروژه‌ها اینجا لود میشه -->
+      </div>
+    </div>
+    <!-- ======================================================== -->
     
     <div style="text-align: center; margin-top:40px;"><a href="index.html" style="color: #a78bfa; text-decoration: none; font-weight: bold;">← بازگشت به سایت</a></div>
   </div>
