@@ -34,15 +34,9 @@ async function initDB() {
             UNIQUE(project_id, voter_id)
         )`);
 
-        try {
-            await db.execute("ALTER TABLE projects ADD COLUMN category TEXT DEFAULT 'robot'");
-        } catch (e) {}
-        try {
-            await db.execute("ALTER TABLE projects ADD COLUMN is_creator INTEGER DEFAULT 0");
-        } catch (e) {}
-        try {
-            await db.execute("UPDATE projects SET category = 'python' WHERE category = 'game'");
-        } catch (e) {}
+        try { await db.execute("ALTER TABLE projects ADD COLUMN category TEXT DEFAULT 'robot'"); } catch (e) {}
+        try { await db.execute("ALTER TABLE projects ADD COLUMN is_creator INTEGER DEFAULT 0"); } catch (e) {}
+        try { await db.execute("UPDATE projects SET category = 'python' WHERE category = 'game'"); } catch (e) {}
 
         console.log("✅ DB is ready.");
     } catch (err) { console.error("DB Error:", err); }
@@ -68,9 +62,15 @@ async function uploadToImgbb(filePath) {
     }
 }
 
+// 🚨 تغییر اصلی: مرتب‌سازی بر اساس تعداد رأی و مجموع امتیاز
 app.get('/api/projects', async (req, res) => {
     try {
-        const result = await db.execute(`SELECT *, (CASE WHEN vote_count = 0 THEN 0 ELSE ROUND(CAST(total_score AS REAL) / vote_count, 1) END) AS avg_score FROM projects ORDER BY avg_score DESC, vote_count DESC`);
+        const result = await db.execute(`
+            SELECT *, 
+            (CASE WHEN vote_count = 0 THEN 0 ELSE ROUND(CAST(total_score AS REAL) / vote_count, 1) END) AS avg_score 
+            FROM projects 
+            ORDER BY vote_count DESC, total_score DESC, avg_score DESC
+        `);
         res.json(result.rows);
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -89,7 +89,6 @@ app.post('/api/rate', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ==================== رأی نامحدود برای ادمین ====================
 app.post('/api/admin/unlimited-vote', async (req, res) => {
     const { password, project_id, score } = req.body;
     if (password !== '123456') return res.json({ success: false, message: "رمز عبور اشتباه است" });
@@ -99,12 +98,9 @@ app.post('/api/admin/unlimited-vote', async (req, res) => {
             args: [score, project_id] 
         });
         res.json({ success: true, message: "رأی ثبت شد!" });
-    } catch (err) { 
-        res.status(500).json({ error: err.message }); 
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ==================== صفر کردن رأی‌ها ====================
 app.post('/api/admin/reset-votes', async (req, res) => {
     const { password } = req.body;
     if (password !== '123456') return res.json({ success: false, message: "رمز عبور اشتباه است" });
@@ -112,12 +108,9 @@ app.post('/api/admin/reset-votes', async (req, res) => {
         await db.execute("UPDATE projects SET total_score = 0, vote_count = 0");
         await db.execute("DELETE FROM votes");
         res.json({ success: true, message: "تمام رأی‌ها و امتیازها صفر شدند!" });
-    } catch (err) { 
-        res.status(500).json({ error: err.message }); 
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ==================== بقیه APIها ====================
 app.post('/api/admin/add', upload.single('image'), async (req, res) => {
     const { password, title, description, team_name, video_url, image_url_text, category, is_creator } = req.body;
     if (password !== '123456') return res.json({ success: false, message: "رمز اشتباه است" });
