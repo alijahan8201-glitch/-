@@ -329,7 +329,6 @@ async function loadUnlimitedVoteList() {
       return;
     }
 
-    // ساخت کارت‌ها با ظاهری شبیه به صفحه اصلی
     container.innerHTML = data.map(p => {
       const imgSrc = p.image_url ? p.image_url : null;
       const isCreator = p.is_creator == 1 ? 'creator-card' : '';
@@ -390,6 +389,34 @@ async function submitUnlimitedVote(projectId) {
     if (data.success) {
       showToast('رأی با موفقیت ثبت شد ✅', 'success');
       loadUnlimitedVoteList(); // آپدیت لیست برای نمایش امتیاز جدید
+    } else {
+      showToast(data.message, 'error');
+    }
+  } catch (err) {
+    showToast('خطا در ارتباط با سرور', 'error');
+  }
+}
+
+// ==================== تابع صفر کردن رأی‌ها ====================
+async function resetVotes() {
+  const password = savedPassword || prompt('برای صفر کردن رأی‌ها، رمز ادمین را وارد کنید:');
+  if (!password) return;
+
+  if (!confirm('آیا مطمئن هستید؟ تمام امتیازها و رأی‌ها صفر می‌شوند اما پروژه‌ها و اسامی باقی می‌مانند.')) return;
+
+  try {
+    const response = await fetch(`${API_URL}/admin/reset-votes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: password })
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      showToast('تمام رأی‌ها با موفقیت صفر شدند ✅', 'success');
+      savedPassword = password;
+      sessionStorage.setItem('admin_password', savedPassword);
+      loadProjectsList(); 
     } else {
       showToast(data.message, 'error');
     }
