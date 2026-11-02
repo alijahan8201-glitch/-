@@ -189,6 +189,46 @@ async function downloadWord() {
   } catch (error) { showToast('خطا در ساخت فایل Word', 'error'); }
 }
 
+// ==================== دانلود فایل اکسل ====================
+async function downloadExcel() {
+  try {
+    const response = await fetch(`${API_URL}/projects`);
+    const data = await response.json();
+
+    if (data.length === 0) {
+      showToast('هیچ پروژه‌ای وجود ندارد', 'error');
+      return;
+    }
+
+    // مرتب‌سازی نهایی بر اساس تعداد رای
+    data.sort((a, b) => b.vote_count - a.vote_count || b.total_score - a.total_score);
+
+    let csvContent = "\uFEFF"; // BOM برای پشتیبانی از فارسی در اکسل
+    csvContent += "رتبه,عنوان پروژه,نام تیم,دسته بندی,تعداد رای,مجموع امتیاز,میانگین امتیاز\n";
+
+    data.forEach((p, index) => {
+      let catName = p.category === 'robot' ? 'ربات' : (p.category === 'python' ? 'بازی پایتون' : 'بازی mBlock');
+      const safeTitle = `"${(p.title || '').replace(/"/g, '""')}"`;
+      const safeTeam = `"${(p.team_name || 'ناشناس').replace(/"/g, '""')}"`;
+      csvContent += `${index + 1},${safeTitle},${safeTeam},${catName},${p.vote_count},${p.total_score},${p.avg_score}\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `نتایج_مسابقه_رباتیک.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('فایل اکسل دانلود شد ✅', 'success');
+  } catch (err) {
+    showToast('خطا در دریافت اطلاعات', 'error');
+  }
+}
+
 // ==================== جدول رده‌بندی ادمین ====================
 async function loadAdminLeaderboard(category, btnElement) {
   document.querySelectorAll('#tab-leaderboard .filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -213,8 +253,8 @@ async function loadAdminLeaderboard(category, btnElement) {
         <td style="font-size: 1.3rem; font-weight: bold;">${medal}</td>
         <td style="color:#fff; font-weight: bold; font-size:1.1rem;">${p.title}</td>
         <td style="color:#a78bfa;">${p.team_name || '-'}</td>
+        <td style="color:#34d399; font-weight: bold; font-size: 1.2rem;">${p.vote_count} رأی</td>
         <td style="color:#fbbf24; font-weight: bold; font-size: 1.2rem;">${p.avg_score}</td>
-        <td>${p.vote_count} نفر</td>
       </tr>`;
     }).join('');
   } catch (e) { tbody.innerHTML = '<tr><td colspan="5" style="color:red;">خطا</td></tr>'; }
@@ -315,7 +355,7 @@ async function fetchWinner() {
   btn.disabled = false; btn.textContent = '🎲 قرعه‌کشی مجدد';
 }
 
-// ==================== منطق رأی‌گیری ویژه (با کارت) ====================
+// ==================== منطق رأی‌گیری ویژه ====================
 async function loadUnlimitedVoteList() {
   const container = document.getElementById('unlimited-projects-list');
   container.innerHTML = '<div style="color: #fff; grid-column: 1/-1;">در حال بارگذاری...</div>';
@@ -388,7 +428,7 @@ async function submitUnlimitedVote(projectId) {
 
     if (data.success) {
       showToast('رأی با موفقیت ثبت شد ✅', 'success');
-      loadUnlimitedVoteList(); // آپدیت لیست برای نمایش امتیاز جدید
+      loadUnlimitedVoteList();
     } else {
       showToast(data.message, 'error');
     }
@@ -424,7 +464,6 @@ async function resetVotes() {
     showToast('خطا در ارتباط با سرور', 'error');
   }
 }
-// ==================================================================
 
 if (savedPassword) document.getElementById('password').value = savedPassword;
 loadProjectsList();
