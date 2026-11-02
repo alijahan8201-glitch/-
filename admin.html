@@ -52,6 +52,7 @@
       <button class="tab-btn" onclick="openTab('tab-unlimited-vote', this)">🗳️ رأی‌گیری ویژه</button>
     </div>
 
+    <!-- تب افزودن پروژه -->
     <div id="tab-add" class="tab-content active">
       <form id="add-form">
         <div class="form-grid">
@@ -75,56 +76,56 @@
         <button type="submit" class="btn-primary" id="submit-btn">➕ افزودن پروژه</button>
       </form>
       
-      <!-- دکمه صفر کردن رأی‌ها -->
       <div style="margin-top: 50px; padding-top: 30px; border-top: 1px dashed rgba(255,255,255,0.1); text-align: center;">
         <h3 style="color: #ef4444; margin-bottom: 15px;">⚠️ منطقه خطر</h3>
-        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px;">با کلیک روی این دکمه، تمام امتیازها و رأی‌ها صفر می‌شوند (پروژه‌ها و اسامی پاک نمی‌شوند).</p>
-        <button type="button" onclick="resetVotes()" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: none; padding: 12px 30px; border-radius: 12px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 1rem;">
-          🗑️ صفر کردن تمام رأی‌ها
-        </button>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px;">با کلیک روی این دکمه، تمام امتیازها و رأی‌ها صفر می‌شوند.</p>
+        <button type="button" onclick="resetVotes()" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: none; padding: 12px 30px; border-radius: 12px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 1rem;">🗑️ صفر کردن تمام رأی‌ها</button>
       </div>
 
       <div class="admin-projects" style="margin-top: 50px;"><h3 style="margin-bottom: 20px; color: #fff;">پروژه‌های موجود</h3><div id="admin-list" style="color: #cbd5e1;">در حال بارگذاری...</div></div>
     </div>
 
+    <!-- تب رده‌بندی -->
     <div id="tab-leaderboard" class="tab-content">
       <h3 style="margin-bottom: 20px; color: #fff;">🏆 رتبه‌بندی</h3>
+      <button onclick="downloadExcel()" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: inherit; font-weight: bold; margin-bottom: 20px; width: 100%; font-size: 1rem;">
+        📥 دانلود فایل اکسل (تمام نتایج)
+      </button>
       <div class="filter-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
         <button class="filter-btn active" id="btn-admin-lb-robot" onclick="loadAdminLeaderboard('robot', this)">🤖 ربات‌ها</button>
         <button class="filter-btn" id="btn-admin-lb-python" onclick="loadAdminLeaderboard('python', this)">🐍 بازی پایتون</button>
         <button class="filter-btn" id="btn-admin-lb-mblock" onclick="loadAdminLeaderboard('mblock', this)">🧩 بازی mBlock</button>
       </div>
-      <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 20px;"><table class="participant-table" id="leaderboard-table"><thead><tr><th>رتبه</th><th>پروژه</th><th>تیم</th><th>میانگین</th><th>تعداد رأی</th></tr></thead><tbody id="leaderboard-body"><tr><td colspan="5">در حال بارگذاری...</td></tr></tbody></table></div>
+      <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 20px;"><table class="participant-table" id="leaderboard-table"><thead><tr><th>رتبه</th><th>پروژه</th><th>تیم</th><th>تعداد رأی</th><th>میانگین</th></tr></thead><tbody id="leaderboard-body"><tr><td colspan="5">در حال بارگذاری...</td></tr></tbody></table></div>
     </div>
 
+    <!-- تب شرکت‌کننده‌ها -->
     <div id="tab-participants" class="tab-content">
       <h3 style="margin-bottom: 20px; color: #fff;">لیست شرکت‌کننده‌ها</h3>
       <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 20px;"><table class="participant-table" id="participants-table"><thead><tr><th>نام</th><th>نام خانوادگی</th><th>شماره تماس</th><th>امتیاز</th><th>پروژه</th></tr></thead><tbody id="participants-body"><tr><td colspan="5">در حال بارگذاری...</td></tr></tbody></table></div>
     </div>
 
+    <!-- تب QR -->
     <div id="tab-qr-teams" class="tab-content">
       <h3 style="margin-bottom: 20px; color: #fff;">📱 QR شرکت‌کننده‌ها</h3>
       <p style="color: #94a3b8; margin-bottom: 20px;">با کلیک روی هر نام، یک QR Code ساخته می‌شود.</p>
       <div id="teams-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;"><div>در حال بارگذاری لیست...</div></div>
     </div>
 
+    <!-- تب قرعه‌کشی -->
     <div id="tab-draw" class="tab-content">
       <div class="draw-box"><h3 style="color: #fff; font-size: 1.6rem;">قرعه‌کشی ویژه</h3><div id="winner-display">-</div><div id="winner-phone"></div><button class="btn-primary" onclick="startDraw()" id="draw-btn" style="max-width: 300px; margin: 0 auto;">🎲 شروع قرعه‌کشی</button></div>
     </div>
 
-    <!-- ==================== تب رأی‌گیری ویژه (طراحی جدید کارتی) ==================== -->
+    <!-- تب رأی‌گیری ویژه -->
     <div id="tab-unlimited-vote" class="tab-content">
       <h3 style="margin-bottom: 10px; color: #fff; text-align: center;">🗳️ پنل رأی‌گیری ویژه</h3>
       <p style="color: #94a3b8; margin-bottom: 30px; text-align: center;">این بخش برای مسئولین است. رمز عبور را وارد کرده و به هر تعداد که خواستید رأی دهید.</p>
-      
       <div class="form-group" style="max-width: 300px; margin: 0 auto 40px auto;">
         <label style="color: #fff; text-align: center; display: block;">رمز عبور این بخش:</label>
         <input type="password" id="unlimited-pass" class="form-input" placeholder="رمز ادمین را وارد کنید">
       </div>
-
-      <div id="unlimited-projects-list" class="projects-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
-        <!-- کارت‌های پروژه اینجا لود میشن -->
-      </div>
+      <div id="unlimited-projects-list" class="projects-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;"></div>
     </div>
     
     <div style="text-align: center; margin-top:40px;"><a href="index.html" style="color: #a78bfa; text-decoration: none; font-weight: bold;">← بازگشت به سایت</a></div>
